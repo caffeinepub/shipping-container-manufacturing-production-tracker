@@ -1,14 +1,14 @@
 # Specification
 
 ## Summary
-**Goal:** Add a Daily Production Report system to track operation-wise production data with 17 predefined manufacturing operations.
+**Goal:** Create an Admin Production Update Panel that allows administrators to update production data with auto-calculation features and daily update capability.
 
 **Planned changes:**
-- Create Daily_Production_Report data structure with fields: id, date, operation_name, today_production, total_completed, despatched, in_hand
-- Populate with 17 default operation names: Boxing, Welding/Finishing, Rear Wall, Front Wall, Side Wall, Roof, Rear Door, Blasting & Primer, Final Paint, Gasket, DLM, Plywood, Floor Screw, Decal, Data Plate, Sikha, Black Paint
-- Implement backend CRUD operations for production report management
-- Build frontend form for entering/editing daily production data with date picker and operation dropdown
-- Create sortable, filterable table view displaying all production records with edit and delete actions
-- Add "Daily Production Report" navigation menu item
+- Add a new Admin Production Update Panel component to the frontend
+- Implement auto-calculation logic for production metrics based on input data
+- Add daily update capability allowing admins to modify production records
+- Create UI controls for selecting dates and operations to update
+- Implement validation and submission logic for production updates
+- Add backend endpoints to support production data updates while preserving existing CRUD operations
 
-**User-visible outcome:** Administrators can track daily production metrics for each operation through a dedicated page with form entry and table management, accessible via the main navigation menu.
+**User-visible outcome:** Administrators can access a dedicated panel to update production data for any date and operation, with automatic calculations applied to related metrics, streamlining the production tracking workflow.

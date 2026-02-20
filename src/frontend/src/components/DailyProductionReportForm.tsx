@@ -41,10 +41,18 @@ export default function DailyProductionReportForm({ editingReport, onCancelEdit 
   const [todayProduction, setTodayProduction] = useState('');
   const [totalCompleted, setTotalCompleted] = useState('');
   const [despatched, setDespatched] = useState('');
-  const [inHand, setInHand] = useState('');
 
   const createReport = useCreateDailyProductionReport();
   const updateReport = useUpdateDailyProductionReport();
+
+  // Calculate In Hand automatically
+  const calculateInHand = (): number => {
+    const totalCompletedNum = parseInt(totalCompleted) || 0;
+    const despatchedNum = parseInt(despatched) || 0;
+    return Math.max(0, totalCompletedNum - despatchedNum);
+  };
+
+  const inHand = calculateInHand();
 
   useEffect(() => {
     if (editingReport) {
@@ -53,7 +61,6 @@ export default function DailyProductionReportForm({ editingReport, onCancelEdit 
       setTodayProduction(editingReport.todayProduction.toString());
       setTotalCompleted(editingReport.totalCompleted.toString());
       setDespatched(editingReport.despatched.toString());
-      setInHand(editingReport.inHand.toString());
     }
   }, [editingReport]);
 
@@ -63,7 +70,6 @@ export default function DailyProductionReportForm({ editingReport, onCancelEdit 
     setTodayProduction('');
     setTotalCompleted('');
     setDespatched('');
-    setInHand('');
     if (onCancelEdit) {
       onCancelEdit();
     }
@@ -72,7 +78,7 @@ export default function DailyProductionReportForm({ editingReport, onCancelEdit 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!date || !operationName || !todayProduction || !totalCompleted || !despatched || !inHand) {
+    if (!date || !operationName || !todayProduction || !totalCompleted || !despatched) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -80,17 +86,14 @@ export default function DailyProductionReportForm({ editingReport, onCancelEdit 
     const todayProductionNum = parseInt(todayProduction);
     const totalCompletedNum = parseInt(totalCompleted);
     const despatchedNum = parseInt(despatched);
-    const inHandNum = parseInt(inHand);
 
     if (
       isNaN(todayProductionNum) ||
       isNaN(totalCompletedNum) ||
       isNaN(despatchedNum) ||
-      isNaN(inHandNum) ||
       todayProductionNum < 0 ||
       totalCompletedNum < 0 ||
-      despatchedNum < 0 ||
-      inHandNum < 0
+      despatchedNum < 0
     ) {
       toast.error('Please enter valid numbers (0 or greater)');
       return;
@@ -102,7 +105,7 @@ export default function DailyProductionReportForm({ editingReport, onCancelEdit 
       todayProduction: BigInt(todayProductionNum),
       totalCompleted: BigInt(totalCompletedNum),
       despatched: BigInt(despatchedNum),
-      inHand: BigInt(inHandNum),
+      inHand: BigInt(inHand),
     };
 
     if (editingReport) {
@@ -139,7 +142,7 @@ export default function DailyProductionReportForm({ editingReport, onCancelEdit 
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            {editingReport ? 'Edit Production Report' : 'New Production Report'}
+            {editingReport ? 'Edit Production Report' : 'Admin Production Update Panel'}
           </div>
           {editingReport && (
             <Button variant="ghost" size="sm" onClick={resetForm}>
@@ -186,7 +189,7 @@ export default function DailyProductionReportForm({ editingReport, onCancelEdit 
 
             <div className="space-y-2">
               <Label htmlFor="todayProduction">
-                Today Production <span className="text-destructive">*</span>
+                Today's Production <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="todayProduction"
@@ -216,7 +219,7 @@ export default function DailyProductionReportForm({ editingReport, onCancelEdit 
 
             <div className="space-y-2">
               <Label htmlFor="despatched">
-                Despatched <span className="text-destructive">*</span>
+                Despatched Quantity <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="despatched"
@@ -230,18 +233,18 @@ export default function DailyProductionReportForm({ editingReport, onCancelEdit 
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="inHand">
-                In Hand <span className="text-destructive">*</span>
-              </Label>
+              <Label htmlFor="inHand">In Hand (Auto-calculated)</Label>
               <Input
                 id="inHand"
                 type="number"
-                min="0"
                 value={inHand}
-                onChange={(e) => setInHand(e.target.value)}
-                placeholder="0"
-                required
+                readOnly
+                disabled
+                className="bg-muted cursor-not-allowed"
               />
+              <p className="text-xs text-muted-foreground">
+                Calculated as: Total Completed - Despatched
+              </p>
             </div>
           </div>
 

@@ -1,129 +1,20 @@
 {
   "kind": "build_request",
-  "title": "Add Daily_Production_Report table with operation-wise tracking",
+  "title": "Create Admin Production Update Panel with auto-calculation and daily update capability",
   "projectName": "Container Production Tracker",
   "priority": "normal",
-  "requirements": [
-    {
-      "id": "REQ-8",
-      "text": "Create a Daily_Production_Report data structure in the backend with fields: id (Primary Key), date (Date), operation_name (Text), today_production (Number), total_completed (Number), despatched (Number), in_hand (Number)",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-6"
-        ],
-        "quotes": [
-          "Create a table named: Daily_Production_Report",
-          "Fields required: id (Primary Key), date (Date), operation_name (Text), today_production (Number), total_completed (Number), despatched (Number), in_hand (Number)"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Backend data structure includes all seven fields with correct types",
-        "id field serves as unique identifier",
-        "date field stores daily production date",
-        "operation_name field stores text identifiers for operations",
-        "today_production, total_completed, despatched, and in_hand fields store numeric values"
-      ]
-    },
-    {
-      "id": "REQ-9",
-      "text": "Populate the Daily_Production_Report with default operation name entries: Boxing, Welding/Finishing, Rear Wall, Front Wall, Side Wall, Roof, Rear Door, Blasting & Primer, Final Paint, Gasket, DLM, Plywood, Floor Screw, Decal, Data Plate, Sikha, Black Paint",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-6"
-        ],
-        "quotes": [
-          "Insert the following operation names as default rows: Boxing, Welding/Finishing, Rear Wall, Front Wall, Side Wall, Roof, Rear Door, Blasting & Primer, Final Paint, Gasket, DLM, Plywood, Floor Screw, Decal, Data Plate, Sikha, Black Paint"
-        ]
-      },
-      "acceptanceCriteria": [
-        "All 17 operation names are inserted as default entries",
-        "Operation names match exactly as specified including capitalization and special characters",
-        "Default entries are available immediately after system initialization"
-      ]
-    },
-    {
-      "id": "REQ-10",
-      "text": "Create backend CRUD operations for Daily_Production_Report that allow administrators to add, retrieve, update, and delete production report records",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-6"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Add function creates new production report records with all required fields",
-        "Retrieve function returns production reports filtered by date, operation_name, or all records",
-        "Update function modifies existing production report records by id",
-        "Delete function removes production report records by id",
-        "All operations require admin authentication"
-      ]
-    },
-    {
-      "id": "REQ-11",
-      "text": "Build a frontend page for Daily Production Report management that displays a form to enter/edit daily production data for each operation with fields for date, operation_name selection, today_production, total_completed, despatched, and in_hand",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-6"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Form includes date picker for selecting production date",
-        "Operation name dropdown populated with all 17 default operations",
-        "Numeric input fields for today_production, total_completed, despatched, and in_hand",
-        "Form validates all required fields before submission",
-        "Success and error messages display after form submission",
-        "Form follows existing industrial dashboard visual theme"
-      ]
-    },
-    {
-      "id": "REQ-12",
-      "text": "Create a frontend table view that displays all Daily_Production_Report records in a sortable, filterable table showing all fields (date, operation_name, today_production, total_completed, despatched, in_hand) with edit and delete actions",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-6"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Table displays all Daily_Production_Report records with all seven fields",
-        "Table supports sorting by date, operation_name, and numeric fields",
-        "Filter allows searching by date range and operation name",
-        "Edit action opens form pre-populated with selected record data",
-        "Delete action removes record after confirmation",
-        "Table follows existing industrial table styling with consistent typography and layout"
-      ]
-    },
-    {
-      "id": "REQ-13",
-      "text": "Add navigation menu item linking to the Daily Production Report page in the main application navigation",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-6"
-        ]
-      },
-      "acceptanceCriteria": [
-        "New menu item labeled 'Daily Production Report' appears in main navigation",
-        "Menu item appears in both desktop and mobile navigation",
-        "Clicking the menu item navigates to the Daily Production Report page",
-        "Menu item styling matches existing navigation items"
-      ]
-    }
-  ],
+  "requirements": [],
   "constraints": [
-    "All Daily_Production_Report operations must require admin authentication",
-    "Use single-actor backend architecture in backend/main.mo",
-    "Follow existing industrial dashboard visual theme with neutral color palette",
-    "Do not modify immutable frontend paths: useInternetIdentity.ts, useActor.ts, main.tsx, components/ui"
+    "Do not modify the existing Daily_Production_Report backend structure or CRUD operations",
+    "Do not change the DailyProductionReportPage.tsx component structure",
+    "Preserve the existing operation names list in DailyProductionReportFilter.tsx",
+    "Maintain single-actor architecture in backend/main.mo"
   ],
   "nonGoals": [
-    "Real-time collaboration features",
-    "External database integration",
-    "Automated production calculations beyond in_hand = total_completed - despatched",
-    "Integration with third-party manufacturing systems"
+    "Creating new database tables or modifying the Daily_Production_Report schema",
+    "Changing the existing navigation structure",
+    "Modifying authentication or authorization logic",
+    "Adding new operation names beyond the existing 17 operations"
   ],
   "imageRequirements": {
     "required": [],

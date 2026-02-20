@@ -1,12 +1,13 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 5,
+  "projectStateVersion": 7,
   "summary": "Responsive industrial production tracking web application for a Shipping Container Manufacturing Unit focused on 40ft High Cube Containers with admin login, operation-wise daily production database, dashboard, history, dispatch tracking, and operation-wise status. Mobile-friendly with clean industrial UI.",
   "architectural_notes": [
     "Mobile-first responsive design for smartphone data entry",
     "Clean industrial dashboard style UI with table layout and summary cards",
     "Operation-specific production tracking with 17 predefined manufacturing operations for 40ft High Cube Containers",
-    "Daily_Production_Report table structure: id, date, operation_name, today_production, total_completed, despatched, in_hand"
+    "Daily_Production_Report table structure: id, date, operation_name, today_production, total_completed, despatched, in_hand",
+    "Admin Production Update Panel performs automatic calculation: In Hand = Total Completed - Despatched"
   ],
   "known_issues": [],
   "isFixRequest": false,
@@ -163,6 +164,12 @@
       "reqIds": [
         "REQ-10"
       ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-12",
+      "summary": "Create Admin Production Update Panel with date selection, operation name dropdown, input fields for today's production, total completed, and despatched quantity, with automatic calculation of in-hand (total completed minus despatched), storing data in Daily_Production_Report table",
+      "reqIds": [],
       "status": "pending"
     }
   ],

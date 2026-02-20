@@ -5,13 +5,13 @@ import Runtime "mo:core/Runtime";
 import Iter "mo:core/Iter";
 import Nat "mo:core/Nat";
 import Array "mo:core/Array";
-import Migration "migration";
+
 
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
 // Use with-clause to install migration on upgrade.
-(with migration = Migration.run)
+
 actor {
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
@@ -277,3 +277,4 @@ actor {
     };
   };
 };
+
