@@ -1,0 +1,173 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 5,
+  "summary": "Responsive industrial production tracking web application for a Shipping Container Manufacturing Unit focused on 40ft High Cube Containers with admin login, operation-wise daily production database, dashboard, history, dispatch tracking, and operation-wise status. Mobile-friendly with clean industrial UI.",
+  "architectural_notes": [
+    "Mobile-first responsive design for smartphone data entry",
+    "Clean industrial dashboard style UI with table layout and summary cards",
+    "Operation-specific production tracking with 17 predefined manufacturing operations for 40ft High Cube Containers",
+    "Daily_Production_Report table structure: id, date, operation_name, today_production, total_completed, despatched, in_hand"
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-implement-admin-authentication-system-using-internet-identity-that-restricts-access-to-all-production-features-to-authenticated-administrators-only",
+      "title": "Implement admin authentication system using Internet Identity that restricts access to all production features to authenticated administrators only",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-daily-production-data-entry-form-that-allows-administrators-to-record-production-metrics-including-date-container-type-quantity-produced-shift-information-and-any-relevant-production-notes",
+      "title": "Create a daily production data entry form that allows administrators to record production metrics including date, container type, quantity produced, shift information, and any relevant production notes",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-production-dashboard-that-displays-summary-cards-showing-total-production-metrics-recent-production-entries-and-key-performance-indicators-for-the-current-period",
+      "title": "Build a production dashboard that displays summary cards showing total production metrics, recent production entries, and key performance indicators for the current period",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-date-wise-production-history-view-that-displays-all-production-records-in-a-sortable-filterable-table-with-search-by-date-range-functionality",
+      "title": "Implement date-wise production history view that displays all production records in a sortable, filterable table with search by date range functionality",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-dispatch-tracking-functionality-that-allows-administrators-to-record-container-dispatches-with-dispatch-date-quantity-destination-and-tracking-reference-and-displays-all-dispatch-records-in-a-table",
+      "title": "Create dispatch tracking functionality that allows administrators to record container dispatches with dispatch date, quantity, destination, and tracking reference, and displays all dispatch records in a table",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-operation-wise-work-in-hand-status-view-that-calculates-and-displays-current-inventory-by-container-type-showing-produced-quantity-minus-dispatched-quantity-for-each-operation-or-container-type",
+      "title": "Build operation-wise work-in-hand status view that calculates and displays current inventory by container type, showing produced quantity minus dispatched quantity for each operation or container type",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-a-clean-industrial-dashboard-visual-theme-throughout-the-application-using-neutral-industrial-color-palette-grays-blues-steel-tones-clear-typography-optimized-for-data-readability-structured-table-layouts-for-production-data-and-summary-cards-with-subtle-shadows-and-borders-for-key-metrics",
+      "title": "Apply a clean industrial dashboard visual theme throughout the application using neutral industrial color palette (grays, blues, steel tones), clear typography optimized for data readability, structured table layouts for production data, and summary cards with subtle shadows and borders for key metrics",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-frontend-page-for-daily-production-report-management-that-displays-a-form-to-enter-edit-daily-production-data-for-each-operation-with-fields-for-date-operation-name-selection-today-production-total-completed-despatched-and-in-hand",
+      "title": "Build a frontend page for Daily Production Report management that displays a form to enter/edit daily production data for each operation with fields for date, operation_name selection, today_production, total_completed, despatched, and in_hand",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-frontend-table-view-that-displays-all-daily-production-report-records-in-a-sortable-filterable-table-showing-all-fields-date-operation-name-today-production-total-completed-despatched-in-hand-with-edit-and-delete-actions",
+      "title": "Create a frontend table view that displays all Daily_Production_Report records in a sortable, filterable table showing all fields (date, operation_name, today_production, total_completed, despatched, in_hand) with edit and delete actions",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-navigation-menu-item-linking-to-the-daily-production-report-page-in-the-main-application-navigation",
+      "title": "Add navigation menu item linking to the Daily Production Report page in the main application navigation",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Admin Login System",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Daily Production Data Entry Panel",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Production Dashboard",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Date-wise Production History",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Dispatch Tracking",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Operation-wise Work in Hand Status",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Create Daily_Production_Report database table with fields: id, date, operation_name, today_production, total_completed, despatched, in_hand",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Populate default operation names: Boxing, Welding/Finishing, Rear Wall, Front Wall, Side Wall, Roof, Rear Door, Blasting & Primer, Final Paint, Gasket, DLM, Plywood, Floor Screw, Decal, Data Plate, Sikha, Black Paint",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Create a Daily_Production_Report data structure in the backend with fields: id (Primary Key), date (Date), operation_name (Text), today_production (Number), total_completed (Number), despatched (Number), in_hand (Number)",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Populate the Daily_Production_Report with default operation name entries: Boxing, Welding/Finishing, Rear Wall, Front Wall, Side Wall, Roof, Rear Door, Blasting & Primer, Final Paint, Gasket, DLM, Plywood, Floor Screw, Decal, Data Plate, Sikha, Black Paint",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-11",
+      "summary": "Create backend CRUD operations for Daily_Production_Report that allow administrators to add, retrieve, update, and delete production report records",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Shipping Container Manufacturing Production Tracker",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

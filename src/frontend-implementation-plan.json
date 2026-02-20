@@ -1,0 +1,102 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Add Daily Production Report Frontend",
+  "requirements": [
+    {
+      "id": "REQ-11",
+      "summary": "Build a frontend page for Daily Production Report management with form for entering/editing daily production data",
+      "acceptanceCriteria": [
+        "Form includes date picker for selecting production date",
+        "Operation name dropdown populated with all 17 default operations",
+        "Numeric input fields for today_production, total_completed, despatched, and in_hand",
+        "Form validates all required fields before submission",
+        "Success and error messages display after form submission",
+        "Form follows existing industrial dashboard visual theme"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/DailyProductionReportPage.tsx",
+          "operation": "create",
+          "description": "Create page component that renders the Daily Production Report form and table. Include loading states and admin authorization checks consistent with existing pages like DashboardPage.tsx and DispatchTrackingPage.tsx."
+        },
+        {
+          "path": "frontend/src/components/DailyProductionReportForm.tsx",
+          "operation": "create",
+          "description": "Create form component with date picker, operation name dropdown (pre-populated with 17 operations: Boxing, Welding/Finishing, Rear Wall, Front Wall, Side Wall, Roof, Rear Door, Blasting & Primer, Final Paint, Gasket, DLM, Plywood, Floor Screw, Decal, Data Plate, Sikha, Black Paint), and numeric inputs for today_production, total_completed, despatched, and in_hand. Include field validation, submit handler using mutation hook, and toast notifications for success/error. Follow patterns from DispatchEntryForm.tsx and ProductionEntryPage.tsx for consistent styling and validation."
+        },
+        {
+          "path": "frontend/src/hooks/useCreateDailyProductionReport.ts",
+          "operation": "create",
+          "description": "Create custom mutation hook that calls actor.createDailyProductionReport with DailyProductionReport data. Invalidate 'dailyProductionReports' query key on success. Follow patterns from useAddDispatchRecord.ts and useAddProductionRecord.ts."
+        }
+      ]
+    },
+    {
+      "id": "REQ-12",
+      "summary": "Create frontend table view displaying all Daily_Production_Report records with sorting, filtering, and edit/delete actions",
+      "acceptanceCriteria": [
+        "Table displays all Daily_Production_Report records with all seven fields",
+        "Table supports sorting by date, operation_name, and numeric fields",
+        "Filter allows searching by date range and operation name",
+        "Edit action opens form pre-populated with selected record data",
+        "Delete action removes record after confirmation",
+        "Table follows existing industrial table styling with consistent typography and layout"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/DailyProductionReportTable.tsx",
+          "operation": "create",
+          "description": "Create sortable table component displaying Daily Production Report records with columns for date, operation_name, today_production, total_completed, despatched, and in_hand. Include sort indicators, edit and delete action buttons with confirmation dialog for delete. Pre-populate form when edit is clicked. Follow patterns from DispatchRecordsTable.tsx and ProductionHistoryTable.tsx for consistent sorting and styling."
+        },
+        {
+          "path": "frontend/src/components/DailyProductionReportFilter.tsx",
+          "operation": "create",
+          "description": "Create filter component with date range inputs and operation name dropdown filter. Include apply and clear buttons. Follow patterns from DateRangeFilter.tsx for consistent filter UI and validation."
+        },
+        {
+          "path": "frontend/src/hooks/useGetAllDailyProductionReports.ts",
+          "operation": "create",
+          "description": "Create custom query hook that fetches all daily production reports using actor.getAllDailyProductionReports. Use query key 'dailyProductionReports'. Follow patterns from useGetAllDispatchRecords.ts and useGetAllProductionRecords.ts."
+        },
+        {
+          "path": "frontend/src/hooks/useUpdateDailyProductionReport.ts",
+          "operation": "create",
+          "description": "Create custom mutation hook that calls actor.updateDailyProductionReport with id and updated report data. Invalidate 'dailyProductionReports' query key on success. Follow patterns from existing mutation hooks."
+        },
+        {
+          "path": "frontend/src/hooks/useDeleteDailyProductionReport.ts",
+          "operation": "create",
+          "description": "Create custom mutation hook that calls actor.deleteDailyProductionReport with id. Invalidate 'dailyProductionReports' query key on success. Follow patterns from existing mutation hooks."
+        },
+        {
+          "path": "frontend/src/pages/DailyProductionReportPage.tsx",
+          "operation": "modify",
+          "description": "Integrate DailyProductionReportTable and DailyProductionReportFilter components into the page. Wire up filter state to table display, edit action to form pre-population, and delete action to confirmation and deletion. Ensure proper loading and error states."
+        }
+      ]
+    },
+    {
+      "id": "REQ-13",
+      "summary": "Add navigation menu item linking to Daily Production Report page",
+      "acceptanceCriteria": [
+        "New menu item labeled 'Daily Production Report' appears in main navigation",
+        "Menu item appears in both desktop and mobile navigation",
+        "Clicking the menu item navigates to the Daily Production Report page",
+        "Menu item styling matches existing navigation items"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Add new route for Daily Production Report page at path '/daily-production-report' wrapped with AuthGuard. Import and configure the DailyProductionReportPage component. Follow existing route patterns for dashboard, production-entry, production-history, dispatch, and work-in-hand."
+        },
+        {
+          "path": "frontend/src/components/Layout.tsx",
+          "operation": "modify",
+          "description": "Add navigation menu item labeled 'Daily Production Report' linking to '/daily-production-report' in both desktop and mobile navigation sections. Insert between existing navigation items following the established order and styling patterns."
+        }
+      ]
+    }
+  ]
+}
