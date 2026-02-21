@@ -89,13 +89,30 @@ export class ExternalBlob {
         return this;
     }
 }
+export interface Operation {
+    id: bigint;
+    name: string;
+}
+export interface WorkInHandRecord {
+    currentInventory: bigint;
+    containerType: string;
+    dispatchedQuantity: bigint;
+    producedQuantity: bigint;
+}
+export interface DispatchRecord {
+    destination: string;
+    dispatchDate: string;
+    containerType: string;
+    trackingReference: string;
+    quantity: bigint;
+}
 export interface DailyProductionReport {
     despatched: bigint;
     todayProduction: bigint;
     totalCompleted: bigint;
     date: string;
-    operationName: string;
     inHand: bigint;
+    operation: Operation;
 }
 export interface ProductionRecord {
     date: string;
@@ -104,21 +121,8 @@ export interface ProductionRecord {
     notes: string;
     quantity: bigint;
 }
-export interface WorkInHandRecord {
-    currentInventory: bigint;
-    containerType: string;
-    dispatchedQuantity: bigint;
-    producedQuantity: bigint;
-}
 export interface UserProfile {
     name: string;
-}
-export interface DispatchRecord {
-    destination: string;
-    dispatchDate: string;
-    containerType: string;
-    trackingReference: string;
-    quantity: bigint;
 }
 export enum UserRole {
     admin = "admin",
@@ -130,10 +134,10 @@ export interface backendInterface {
     addDispatchRecord(record: DispatchRecord): Promise<void>;
     addProductionRecord(record: ProductionRecord): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    createDailyProductionReport(report: DailyProductionReport): Promise<bigint>;
-    deleteDailyProductionReport(id: bigint): Promise<boolean>;
+    createDailyProductionReport(date: string, operationId: bigint, todayProduction: bigint, despatched: bigint, inHand: bigint): Promise<bigint>;
     getAllDailyProductionReports(): Promise<Array<DailyProductionReport>>;
     getAllDispatchRecords(): Promise<Array<DispatchRecord>>;
+    getAllOperations(): Promise<Array<Operation>>;
     getAllProductionRecords(): Promise<Array<ProductionRecord>>;
     getCallerRole(): Promise<string | null>;
     getCallerUserProfile(): Promise<UserProfile | null>;
@@ -145,7 +149,7 @@ export interface backendInterface {
     initializeDefaultReports(): Promise<void>;
     isCallerAdmin(): Promise<boolean>;
     saveCallerUserProfile(name: string): Promise<void>;
-    updateDailyProductionReport(id: bigint, updatedReport: DailyProductionReport): Promise<boolean>;
+    updateDailyProductionReport(id: bigint, todayProduction: bigint, despatched: bigint, inHand: bigint): Promise<boolean>;
     updateUserRole(targetUser: Principal, newRole: string): Promise<void>;
 }
 import type { DailyProductionReport as _DailyProductionReport, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
@@ -207,31 +211,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async createDailyProductionReport(arg0: DailyProductionReport): Promise<bigint> {
+    async createDailyProductionReport(arg0: string, arg1: bigint, arg2: bigint, arg3: bigint, arg4: bigint): Promise<bigint> {
         if (this.processError) {
             try {
-                const result = await this.actor.createDailyProductionReport(arg0);
+                const result = await this.actor.createDailyProductionReport(arg0, arg1, arg2, arg3, arg4);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.createDailyProductionReport(arg0);
-            return result;
-        }
-    }
-    async deleteDailyProductionReport(arg0: bigint): Promise<boolean> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.deleteDailyProductionReport(arg0);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.deleteDailyProductionReport(arg0);
+            const result = await this.actor.createDailyProductionReport(arg0, arg1, arg2, arg3, arg4);
             return result;
         }
     }
@@ -260,6 +250,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.getAllDispatchRecords();
+            return result;
+        }
+    }
+    async getAllOperations(): Promise<Array<Operation>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllOperations();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllOperations();
             return result;
         }
     }
@@ -417,17 +421,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async updateDailyProductionReport(arg0: bigint, arg1: DailyProductionReport): Promise<boolean> {
+    async updateDailyProductionReport(arg0: bigint, arg1: bigint, arg2: bigint, arg3: bigint): Promise<boolean> {
         if (this.processError) {
             try {
-                const result = await this.actor.updateDailyProductionReport(arg0, arg1);
+                const result = await this.actor.updateDailyProductionReport(arg0, arg1, arg2, arg3);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.updateDailyProductionReport(arg0, arg1);
+            const result = await this.actor.updateDailyProductionReport(arg0, arg1, arg2, arg3);
             return result;
         }
     }

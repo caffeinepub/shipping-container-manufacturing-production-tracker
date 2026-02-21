@@ -1,17 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Implement role-based access control with Admin and Viewer roles, and ensure all production data is securely stored in backend stable storage.
+**Goal:** Implement dynamic cumulative Total Completed tracking and optional batch dispatch entry for daily production reports.
 
 **Planned changes:**
-- Add role field ('admin' or 'viewer') to UserProfile, defaulting new users to 'viewer'
-- Restrict all data modification operations (add/edit/delete) to admin role only
-- Create backend query function to retrieve caller's role
-- Create frontend hook to fetch and cache user role
-- Update AuthGuard to enforce role-based route access (admin: all routes, viewer: dashboard only)
-- Update Layout navigation menu to show only dashboard links for viewer users
-- Hide or disable all data entry forms and edit/delete buttons for viewer users
-- Add backend function for admins to update other users' roles
-- Verify all production data uses stable storage for persistence across canister upgrades
+- Change Total Completed field to read-only calculated field that automatically computes cumulative running total from all previous production records for the selected operation
+- Update backend to automatically calculate and store cumulative total_completed value when creating or updating daily production reports
+- Change In Hand field to read-only calculated field (Total Completed - Despatch) that updates automatically
+- Add optional Batch Dispatch Entry field at top of form that auto-populates Despatch field for all 17 operations when filled
+- Update ContainerDailyReportPage to display calculated In Hand values for each operation row
 
-**User-visible outcome:** Admin users can add, edit, and delete production data with full access to all features. Viewer users can only view dashboards and production data without any edit capabilities. The navigation menu and available actions automatically adjust based on user role.
+**User-visible outcome:** Users see Total Completed as an automatically calculated cumulative total (no manual entry), In Hand calculated automatically as the difference between Total Completed and Despatch, and can optionally enter a single dispatch value that applies to all operations at once.

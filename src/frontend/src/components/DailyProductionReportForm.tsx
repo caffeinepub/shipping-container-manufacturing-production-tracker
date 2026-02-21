@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -7,29 +7,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useCreateDailyProductionReport } from '../hooks/useCreateDailyProductionReport';
 import { useUpdateDailyProductionReport } from '../hooks/useUpdateDailyProductionReport';
 import { useGetCallerRole } from '../hooks/useGetCallerRole';
+import { useGetAllOperations } from '../hooks/useGetAllOperations';
+import { useGetAllDailyProductionReports } from '../hooks/useGetAllDailyProductionReports';
 import { Loader2, FileText, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { DailyProductionReport } from '../backend';
-
-const DEFAULT_OPERATIONS = [
-  'Boxing',
-  'Welding/Finishing',
-  'Rear Wall',
-  'Front Wall',
-  'Side Wall',
-  'Roof',
-  'Rear Door',
-  'Blasting & Primer',
-  'Final Paint',
-  'Gasket',
-  'DLM',
-  'Plywood',
-  'Floor Screw',
-  'Decal',
-  'Data Plate',
-  'Sikha',
-  'Black Paint',
-];
 
 interface DailyProductionReportFormProps {
   editingReport?: DailyProductionReport | null;
@@ -38,40 +20,60 @@ interface DailyProductionReportFormProps {
 
 export default function DailyProductionReportForm({ editingReport, onCancelEdit }: DailyProductionReportFormProps) {
   const [date, setDate] = useState('');
-  const [operationName, setOperationName] = useState('');
+  const [operationId, setOperationId] = useState('');
   const [todayProduction, setTodayProduction] = useState('');
-  const [totalCompleted, setTotalCompleted] = useState('');
   const [despatched, setDespatched] = useState('');
+  const [batchDispatch, setBatchDispatch] = useState('');
 
   const createReport = useCreateDailyProductionReport();
   const updateReport = useUpdateDailyProductionReport();
   const { data: role } = useGetCallerRole();
+  const { data: operations = [], isLoading: operationsLoading } = useGetAllOperations();
+  const { data: allReports = [], isLoading: reportsLoading } = useGetAllDailyProductionReports();
+
+  // Calculate Total Completed based on cumulative production for selected operation
+  const totalCompleted = useMemo(() => {
+    if (!operationId) return 0;
+    
+    // Sum all previous today_production values for this operation
+    const previousTotal = allReports
+      .filter((report) => report.operation.id.toString() === operationId)
+      .reduce((sum, report) => sum + Number(report.todayProduction), 0);
+    
+    // Add current today_production value
+    const currentProduction = parseInt(todayProduction) || 0;
+    
+    return previousTotal + currentProduction;
+  }, [operationId, allReports, todayProduction]);
 
   // Calculate In Hand automatically
-  const calculateInHand = (): number => {
-    const totalCompletedNum = parseInt(totalCompleted) || 0;
+  const inHand = useMemo(() => {
     const despatchedNum = parseInt(despatched) || 0;
-    return Math.max(0, totalCompletedNum - despatchedNum);
-  };
-
-  const inHand = calculateInHand();
+    return Math.max(0, totalCompleted - despatchedNum);
+  }, [totalCompleted, despatched]);
 
   useEffect(() => {
     if (editingReport) {
       setDate(editingReport.date);
-      setOperationName(editingReport.operationName);
+      setOperationId(editingReport.operation.id.toString());
       setTodayProduction(editingReport.todayProduction.toString());
-      setTotalCompleted(editingReport.totalCompleted.toString());
       setDespatched(editingReport.despatched.toString());
     }
   }, [editingReport]);
 
+  // Apply batch dispatch to all operations when batch dispatch value changes
+  useEffect(() => {
+    if (batchDispatch && !editingReport) {
+      setDespatched(batchDispatch);
+    }
+  }, [batchDispatch, editingReport]);
+
   const resetForm = () => {
     setDate('');
-    setOperationName('');
+    setOperationId('');
     setTodayProduction('');
-    setTotalCompleted('');
     setDespatched('');
+    setBatchDispatch('');
     if (onCancelEdit) {
       onCancelEdit();
     }
@@ -80,37 +82,35 @@ export default function DailyProductionReportForm({ editingReport, onCancelEdit 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!date || !operationName || !todayProduction || !totalCompleted || !despatched) {
+    if (!date || !operationId || !todayProduction || !despatched) {
       toast.error('Please fill in all required fields');
       return;
     }
 
     const todayProductionNum = parseInt(todayProduction);
-    const totalCompletedNum = parseInt(totalCompleted);
     const despatchedNum = parseInt(despatched);
 
     if (
       isNaN(todayProductionNum) ||
-      isNaN(totalCompletedNum) ||
       isNaN(despatchedNum) ||
       todayProductionNum < 0 ||
-      totalCompletedNum < 0 ||
       despatchedNum < 0
     ) {
       toast.error('Please enter valid numbers (0 or greater)');
       return;
     }
 
-    const reportData: DailyProductionReport = {
-      date,
-      operationName,
-      todayProduction: BigInt(todayProductionNum),
-      totalCompleted: BigInt(totalCompletedNum),
-      despatched: BigInt(despatchedNum),
-      inHand: BigInt(inHand),
-    };
-
     if (editingReport) {
+      // Update existing report - only numeric values can be changed
+      const reportData: DailyProductionReport = {
+        date: editingReport.date,
+        operation: editingReport.operation,
+        todayProduction: BigInt(todayProductionNum),
+        totalCompleted: BigInt(totalCompleted),
+        despatched: BigInt(despatchedNum),
+        inHand: BigInt(inHand),
+      };
+
       updateReport.mutate(
         { report: reportData },
         {
@@ -124,20 +124,31 @@ export default function DailyProductionReportForm({ editingReport, onCancelEdit 
         }
       );
     } else {
-      createReport.mutate(reportData, {
-        onSuccess: () => {
-          toast.success('Production report added successfully');
-          resetForm();
+      // Create new report - backend will calculate totalCompleted automatically
+      createReport.mutate(
+        {
+          date,
+          operationId: BigInt(operationId),
+          todayProduction: BigInt(todayProductionNum),
+          despatched: BigInt(despatchedNum),
+          inHand: BigInt(inHand),
         },
-        onError: (error) => {
-          toast.error(`Failed to add production report: ${error.message}`);
-        },
-      });
+        {
+          onSuccess: () => {
+            toast.success('Production report added successfully');
+            resetForm();
+          },
+          onError: (error) => {
+            toast.error(`Failed to add production report: ${error.message}`);
+          },
+        }
+      );
     }
   };
 
   const isSubmitting = createReport.isPending || updateReport.isPending;
   const isDisabled = role === 'viewer';
+  const isEditMode = !!editingReport;
 
   return (
     <Card>
@@ -156,7 +167,31 @@ export default function DailyProductionReportForm({ editingReport, onCancelEdit 
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Batch Dispatch Entry - Only show when not editing */}
+          {!isEditMode && !isDisabled && (
+            <div className="p-4 bg-muted/50 rounded-lg border border-border">
+              <div className="space-y-2">
+                <Label htmlFor="batchDispatch" className="text-base font-semibold">
+                  Apply Same Dispatch to All Operations (Optional)
+                </Label>
+                <Input
+                  id="batchDispatch"
+                  type="number"
+                  min="0"
+                  value={batchDispatch}
+                  onChange={(e) => setBatchDispatch(e.target.value)}
+                  placeholder="Enter dispatch quantity to apply to all operations"
+                  disabled={isDisabled}
+                  className="max-w-md"
+                />
+                <p className="text-xs text-muted-foreground">
+                  If you enter a value here, it will automatically populate the Dispatch field below. Leave empty to enter dispatch manually.
+                </p>
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="date">
@@ -168,27 +203,43 @@ export default function DailyProductionReportForm({ editingReport, onCancelEdit 
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 required
-                disabled={isDisabled}
+                disabled={isDisabled || isEditMode}
                 max={new Date().toISOString().split('T')[0]}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="operationName">
-                Operation Name <span className="text-destructive">*</span>
+              <Label htmlFor="operationId">
+                Operation <span className="text-destructive">*</span>
               </Label>
-              <Select value={operationName} onValueChange={setOperationName} required disabled={isDisabled}>
-                <SelectTrigger id="operationName">
-                  <SelectValue placeholder="Select operation" />
-                </SelectTrigger>
-                <SelectContent>
-                  {DEFAULT_OPERATIONS.map((operation) => (
-                    <SelectItem key={operation} value={operation}>
-                      {operation}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {isEditMode ? (
+                <Input
+                  id="operationId"
+                  type="text"
+                  value={editingReport?.operation.name || ''}
+                  readOnly
+                  disabled
+                  className="bg-muted cursor-not-allowed"
+                />
+              ) : (
+                <Select 
+                  value={operationId} 
+                  onValueChange={setOperationId} 
+                  required 
+                  disabled={isDisabled || operationsLoading}
+                >
+                  <SelectTrigger id="operationId">
+                    <SelectValue placeholder="Select operation" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {operations.map((operation) => (
+                      <SelectItem key={operation.id.toString()} value={operation.id.toString()}>
+                        {operation.id}. {operation.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -209,23 +260,24 @@ export default function DailyProductionReportForm({ editingReport, onCancelEdit 
 
             <div className="space-y-2">
               <Label htmlFor="totalCompleted">
-                Total Completed <span className="text-destructive">*</span>
+                Total Completed (Auto-calculated)
               </Label>
               <Input
                 id="totalCompleted"
                 type="number"
-                min="0"
                 value={totalCompleted}
-                onChange={(e) => setTotalCompleted(e.target.value)}
-                placeholder="0"
-                required
-                disabled={isDisabled}
+                readOnly
+                disabled
+                className="bg-muted cursor-not-allowed tabular-nums"
               />
+              <p className="text-xs text-muted-foreground">
+                Cumulative total from database + today's production
+              </p>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="despatched">
-                Despatched Quantity <span className="text-destructive">*</span>
+                Dispatch <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="despatched"
@@ -247,16 +299,16 @@ export default function DailyProductionReportForm({ editingReport, onCancelEdit 
                 value={inHand}
                 readOnly
                 disabled
-                className="bg-muted cursor-not-allowed"
+                className="bg-muted cursor-not-allowed tabular-nums"
               />
               <p className="text-xs text-muted-foreground">
-                Calculated as: Total Completed - Despatched
+                Total Completed - Dispatch
               </p>
             </div>
           </div>
 
           {!isDisabled && (
-            <Button type="submit" disabled={isSubmitting} className="w-full md:w-auto">
+            <Button type="submit" disabled={isSubmitting || reportsLoading} className="w-full md:w-auto">
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

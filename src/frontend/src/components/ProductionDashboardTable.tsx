@@ -11,7 +11,7 @@ export default function ProductionDashboardTable({ reports }: ProductionDashboar
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Date-wise Daily Production</CardTitle>
+          <CardTitle>Production Details</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-center text-muted-foreground py-8">No production data available</p>
@@ -23,28 +23,28 @@ export default function ProductionDashboardTable({ reports }: ProductionDashboar
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Date-wise Daily Production ({reports.length} operations)</CardTitle>
+        <CardTitle>Production Details</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="font-semibold">Operation Name</TableHead>
-                <TableHead className="text-right font-semibold">Today's Production</TableHead>
-                <TableHead className="text-right font-semibold">Total Completed</TableHead>
-                <TableHead className="text-right font-semibold">Despatched</TableHead>
-                <TableHead className="text-right font-semibold">In Hand</TableHead>
+                <TableHead>Operation Name</TableHead>
+                <TableHead className="text-right">Today's Production</TableHead>
+                <TableHead className="text-right">Total Completed</TableHead>
+                <TableHead className="text-right">Despatched</TableHead>
+                <TableHead className="text-right">In Hand</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {reports.map((report, index) => (
-                <TableRow key={index} className="hover:bg-muted/50">
-                  <TableCell className="font-medium">{report.operationName}</TableCell>
-                  <TableCell className="text-right tabular-nums">{Number(report.todayProduction)}</TableCell>
-                  <TableCell className="text-right tabular-nums">{Number(report.totalCompleted)}</TableCell>
-                  <TableCell className="text-right tabular-nums">{Number(report.despatched)}</TableCell>
-                  <TableCell className="text-right tabular-nums font-semibold">{Number(report.inHand)}</TableCell>
+                <TableRow key={`${report.operation.id}-${index}`}>
+                  <TableCell className="font-medium">{report.operation.name}</TableCell>
+                  <TableCell className="text-right tabular-nums">{Number(report.todayProduction).toLocaleString()}</TableCell>
+                  <TableCell className="text-right tabular-nums">{Number(report.totalCompleted).toLocaleString()}</TableCell>
+                  <TableCell className="text-right tabular-nums">{Number(report.despatched).toLocaleString()}</TableCell>
+                  <TableCell className="text-right tabular-nums">{Number(report.inHand).toLocaleString()}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

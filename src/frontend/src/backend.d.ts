@@ -7,13 +7,30 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
+export interface Operation {
+    id: bigint;
+    name: string;
+}
+export interface WorkInHandRecord {
+    currentInventory: bigint;
+    containerType: string;
+    dispatchedQuantity: bigint;
+    producedQuantity: bigint;
+}
+export interface DispatchRecord {
+    destination: string;
+    dispatchDate: string;
+    containerType: string;
+    trackingReference: string;
+    quantity: bigint;
+}
 export interface DailyProductionReport {
     despatched: bigint;
     todayProduction: bigint;
     totalCompleted: bigint;
     date: string;
-    operationName: string;
     inHand: bigint;
+    operation: Operation;
 }
 export interface ProductionRecord {
     date: string;
@@ -22,21 +39,8 @@ export interface ProductionRecord {
     notes: string;
     quantity: bigint;
 }
-export interface WorkInHandRecord {
-    currentInventory: bigint;
-    containerType: string;
-    dispatchedQuantity: bigint;
-    producedQuantity: bigint;
-}
 export interface UserProfile {
     name: string;
-}
-export interface DispatchRecord {
-    destination: string;
-    dispatchDate: string;
-    containerType: string;
-    trackingReference: string;
-    quantity: bigint;
 }
 export enum UserRole {
     admin = "admin",
@@ -47,10 +51,10 @@ export interface backendInterface {
     addDispatchRecord(record: DispatchRecord): Promise<void>;
     addProductionRecord(record: ProductionRecord): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    createDailyProductionReport(report: DailyProductionReport): Promise<bigint>;
-    deleteDailyProductionReport(id: bigint): Promise<boolean>;
+    createDailyProductionReport(date: string, operationId: bigint, todayProduction: bigint, despatched: bigint, inHand: bigint): Promise<bigint>;
     getAllDailyProductionReports(): Promise<Array<DailyProductionReport>>;
     getAllDispatchRecords(): Promise<Array<DispatchRecord>>;
+    getAllOperations(): Promise<Array<Operation>>;
     getAllProductionRecords(): Promise<Array<ProductionRecord>>;
     getCallerRole(): Promise<string | null>;
     getCallerUserProfile(): Promise<UserProfile | null>;
@@ -62,6 +66,6 @@ export interface backendInterface {
     initializeDefaultReports(): Promise<void>;
     isCallerAdmin(): Promise<boolean>;
     saveCallerUserProfile(name: string): Promise<void>;
-    updateDailyProductionReport(id: bigint, updatedReport: DailyProductionReport): Promise<boolean>;
+    updateDailyProductionReport(id: bigint, todayProduction: bigint, despatched: bigint, inHand: bigint): Promise<boolean>;
     updateUserRole(targetUser: Principal, newRole: string): Promise<void>;
 }

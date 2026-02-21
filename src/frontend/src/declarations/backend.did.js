@@ -27,13 +27,14 @@ export const UserRole = IDL.Variant({
   'user' : IDL.Null,
   'guest' : IDL.Null,
 });
+export const Operation = IDL.Record({ 'id' : IDL.Nat, 'name' : IDL.Text });
 export const DailyProductionReport = IDL.Record({
   'despatched' : IDL.Nat,
   'todayProduction' : IDL.Nat,
   'totalCompleted' : IDL.Nat,
   'date' : IDL.Text,
-  'operationName' : IDL.Text,
   'inHand' : IDL.Nat,
+  'operation' : Operation,
 });
 export const UserProfile = IDL.Record({ 'name' : IDL.Text });
 export const WorkInHandRecord = IDL.Record({
@@ -49,17 +50,17 @@ export const idlService = IDL.Service({
   'addProductionRecord' : IDL.Func([ProductionRecord], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'createDailyProductionReport' : IDL.Func(
-      [DailyProductionReport],
+      [IDL.Text, IDL.Nat, IDL.Nat, IDL.Nat, IDL.Nat],
       [IDL.Nat],
       [],
     ),
-  'deleteDailyProductionReport' : IDL.Func([IDL.Nat], [IDL.Bool], []),
   'getAllDailyProductionReports' : IDL.Func(
       [],
       [IDL.Vec(DailyProductionReport)],
       ['query'],
     ),
   'getAllDispatchRecords' : IDL.Func([], [IDL.Vec(DispatchRecord)], ['query']),
+  'getAllOperations' : IDL.Func([], [IDL.Vec(Operation)], ['query']),
   'getAllProductionRecords' : IDL.Func(
       [],
       [IDL.Vec(ProductionRecord)],
@@ -88,7 +89,7 @@ export const idlService = IDL.Service({
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'saveCallerUserProfile' : IDL.Func([IDL.Text], [], []),
   'updateDailyProductionReport' : IDL.Func(
-      [IDL.Nat, DailyProductionReport],
+      [IDL.Nat, IDL.Nat, IDL.Nat, IDL.Nat],
       [IDL.Bool],
       [],
     ),
@@ -117,13 +118,14 @@ export const idlFactory = ({ IDL }) => {
     'user' : IDL.Null,
     'guest' : IDL.Null,
   });
+  const Operation = IDL.Record({ 'id' : IDL.Nat, 'name' : IDL.Text });
   const DailyProductionReport = IDL.Record({
     'despatched' : IDL.Nat,
     'todayProduction' : IDL.Nat,
     'totalCompleted' : IDL.Nat,
     'date' : IDL.Text,
-    'operationName' : IDL.Text,
     'inHand' : IDL.Nat,
+    'operation' : Operation,
   });
   const UserProfile = IDL.Record({ 'name' : IDL.Text });
   const WorkInHandRecord = IDL.Record({
@@ -139,11 +141,10 @@ export const idlFactory = ({ IDL }) => {
     'addProductionRecord' : IDL.Func([ProductionRecord], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'createDailyProductionReport' : IDL.Func(
-        [DailyProductionReport],
+        [IDL.Text, IDL.Nat, IDL.Nat, IDL.Nat, IDL.Nat],
         [IDL.Nat],
         [],
       ),
-    'deleteDailyProductionReport' : IDL.Func([IDL.Nat], [IDL.Bool], []),
     'getAllDailyProductionReports' : IDL.Func(
         [],
         [IDL.Vec(DailyProductionReport)],
@@ -154,6 +155,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(DispatchRecord)],
         ['query'],
       ),
+    'getAllOperations' : IDL.Func([], [IDL.Vec(Operation)], ['query']),
     'getAllProductionRecords' : IDL.Func(
         [],
         [IDL.Vec(ProductionRecord)],
@@ -186,7 +188,7 @@ export const idlFactory = ({ IDL }) => {
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'saveCallerUserProfile' : IDL.Func([IDL.Text], [], []),
     'updateDailyProductionReport' : IDL.Func(
-        [IDL.Nat, DailyProductionReport],
+        [IDL.Nat, IDL.Nat, IDL.Nat, IDL.Nat],
         [IDL.Bool],
         [],
       ),

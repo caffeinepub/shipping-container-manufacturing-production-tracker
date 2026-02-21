@@ -1,188 +1,117 @@
 {
   "kind": "build_request",
-  "title": "Implement secure data storage and role-based access control with Admin and Viewer roles",
-  "priority": "high",
+  "title": "Implement dynamic cumulative Total Completed tracking and optional batch dispatch entry",
+  "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-31",
-      "text": "Add a 'role' field to the UserProfile data structure in backend/main.mo with two possible values: 'admin' and 'viewer', defaulting new users to 'viewer' role",
+      "id": "REQ-54",
+      "text": "Update the DailyProductionReportForm component at frontend/src/components/DailyProductionReportForm.tsx to change the 'Total Completed' field from a manual input to a read-only calculated field that automatically computes the cumulative running total by fetching all previous production records for the selected operation from the database and adding today's production value to the sum",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "Total Completed = cumulative running total from database"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Total Completed field is displayed as read-only in the form",
+        "Total Completed value is automatically calculated as: (sum of all previous today_production values for this operation) + (current today_production value)",
+        "The calculation fetches data from the backend database for the selected operation",
+        "Total Completed updates automatically when today_production value changes"
+      ]
+    },
+    {
+      "id": "REQ-55",
+      "text": "Update the backend createDailyProductionReport and updateDailyProductionReport functions in backend/main.mo to automatically calculate and store the cumulative total_completed value by querying all previous daily production reports for the given operation_id, summing their today_production values, and adding the current today_production value",
       "target": "backend",
       "source": {
         "messageIds": [
           "msg-latest"
         ],
         "quotes": [
-          "Implement role-based access:\n\nAdmin: Can Add/Edit Production Data\nViewer: Can only view dashboard"
+          "Total Completed = cumulative running total from database"
         ]
       },
       "acceptanceCriteria": [
-        "UserProfile type includes a role field of type Text with values 'admin' or 'viewer'",
-        "New user profiles are created with role set to 'viewer' by default",
-        "The role field is persisted in stable storage along with other user profile data"
+        "Backend calculates total_completed automatically before saving the record",
+        "Calculation queries all existing records with matching operation_id",
+        "Formula: total_completed = sum(previous_records.today_production) + current_today_production",
+        "User cannot manually override the total_completed value"
       ]
     },
     {
-      "id": "REQ-32",
-      "text": "Update all backend mutation functions (addProductionRecord, addDispatchRecord, createDailyProductionReport, updateDailyProductionReport, deleteDailyProductionReport) to check that the caller has 'admin' role before allowing the operation, returning an error if the caller has 'viewer' role",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-latest"
-        ],
-        "quotes": [
-          "Admin: Can Add/Edit Production Data\nViewer: Can only view dashboard"
-        ]
-      },
-      "acceptanceCriteria": [
-        "All data modification operations verify caller role is 'admin' before execution",
-        "Operations return a descriptive error message when attempted by 'viewer' role users",
-        "Query operations (getAllProductionRecords, getAllDispatchRecords, getAllDailyProductionReports, etc.) remain accessible to both admin and viewer roles"
-      ]
-    },
-    {
-      "id": "REQ-33",
-      "text": "Create a backend query function 'getCallerRole' that returns the role ('admin' or 'viewer') of the authenticated caller, returning null if no profile exists",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-latest"
-        ],
-        "quotes": [
-          "Implement role-based access:\n\nAdmin: Can Add/Edit Production Data\nViewer: Can only view dashboard"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Function returns 'admin' or 'viewer' for users with existing profiles",
-        "Function returns null for users without profiles",
-        "Function is accessible to all authenticated users"
-      ]
-    },
-    {
-      "id": "REQ-34",
-      "text": "Create a custom React hook 'useGetCallerRole' at frontend/src/hooks/useGetCallerRole.ts that fetches the current user's role using the getCallerRole backend function",
+      "id": "REQ-56",
+      "text": "Update the DailyProductionReportForm component to automatically calculate and display the 'In Hand' field as a read-only value computed as Total Completed minus Despatch (In Hand = Total Completed - Despatch), recalculating whenever either Total Completed or Despatch values change",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-latest"
         ],
         "quotes": [
-          "Implement role-based access:\n\nAdmin: Can Add/Edit Production Data\nViewer: Can only view dashboard"
+          "In Hand = Total Completed - Despatch"
         ]
       },
       "acceptanceCriteria": [
-        "Hook uses React Query to fetch caller role with appropriate caching",
-        "Hook returns loading state, role data ('admin' | 'viewer' | null), and error state",
-        "Hook is enabled only when actor is initialized"
+        "In Hand field is displayed as read-only",
+        "In Hand is calculated as: Total Completed - Despatch",
+        "Value updates automatically when Total Completed or Despatch changes",
+        "Display shows 0 or positive values only"
       ]
     },
     {
-      "id": "REQ-35",
-      "text": "Update the AuthGuard component at frontend/src/components/AuthGuard.tsx to check caller role and conditionally render components: show full application to admin users, show read-only dashboard access to viewer users, and show access denied to unauthenticated users",
+      "id": "REQ-57",
+      "text": "Add an optional 'Batch Dispatch Entry' input field at the top of the DailyProductionReportForm component that, when filled with a dispatch quantity value, automatically populates the Despatch field for all 17 operations with the same value, allowing administrators to enter a single container dispatch count that applies to all operations simultaneously",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-latest"
         ],
         "quotes": [
-          "Admin: Can Add/Edit Production Data\nViewer: Can only view dashboard"
+          "If Despatch is same for all rows (container dispatch count), allow a single dispatch entry at top and auto-apply to all rows"
         ]
       },
       "acceptanceCriteria": [
-        "Admin users can access all routes and features",
-        "Viewer users can only access dashboard routes (/production-dashboard, /dashboard) and are redirected or blocked from data entry routes",
-        "Unauthenticated users see the access denied screen",
-        "Loading states are displayed while role is being fetched"
+        "Batch Dispatch Entry field appears at the top of the form above individual operation entries",
+        "Field is labeled clearly as 'Apply Same Dispatch to All Operations' or similar",
+        "When a value is entered, all 17 operation Despatch fields are automatically filled with that value",
+        "Field is optional and can be left empty for individual dispatch entry",
+        "Clearing the batch field does not clear individual Despatch values already entered"
       ]
     },
     {
-      "id": "REQ-36",
-      "text": "Update the Layout component navigation menu at frontend/src/components/Layout.tsx to conditionally display menu items based on user role: show all navigation items to admin users, show only dashboard links to viewer users",
+      "id": "REQ-58",
+      "text": "Update the ContainerDailyReportPage component at frontend/src/pages/ContainerDailyReportPage.tsx to display calculated values for each operation row using the formula: In Hand = Total Completed - Despatch, ensuring all numeric columns show accurate computed values based on database records",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-latest"
         ],
         "quotes": [
-          "Admin: Can Add/Edit Production Data\nViewer: Can only view dashboard"
+          "In Hand = Total Completed - Despatch"
         ]
       },
       "acceptanceCriteria": [
-        "Admin users see all navigation menu items (Dashboard, Production Dashboard, Production Entry, Production History, Dispatch Tracking, Work in Hand, Daily Reports)",
-        "Viewer users see only Dashboard and Production Dashboard menu items",
-        "Navigation menu updates reactively when user role changes"
-      ]
-    },
-    {
-      "id": "REQ-37",
-      "text": "Hide or disable all data entry forms and edit/delete buttons on frontend pages for viewer users: disable DailyProductionReportForm, ProductionEntryPage form, DispatchEntryForm, and edit/delete actions in all tables",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-latest"
-        ],
-        "quotes": [
-          "Admin: Can Add/Edit Production Data\nViewer: Can only view dashboard"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Forms and action buttons are hidden or disabled when caller role is 'viewer'",
-        "Dashboard and table views remain fully visible and functional for viewer users",
-        "Admin users continue to see and interact with all forms and actions",
-        "UI clearly indicates read-only status for viewer users where appropriate"
-      ]
-    },
-    {
-      "id": "REQ-38",
-      "text": "Add a backend function 'updateUserRole' that allows an existing admin to change another user's role between 'admin' and 'viewer', verifying that the caller has admin privileges before allowing the operation",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-latest"
-        ],
-        "quotes": [
-          "Implement role-based access:\n\nAdmin: Can Add/Edit Production Data\nViewer: Can only view dashboard"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Function accepts a Principal (user identifier) and new role value as parameters",
-        "Function verifies caller is an admin before allowing role changes",
-        "Function updates the target user's role in stable storage",
-        "Function returns success confirmation or descriptive error message"
-      ]
-    },
-    {
-      "id": "REQ-39",
-      "text": "Verify that all production data (ProductionRecord, DispatchRecord, DailyProductionReport, UserProfile) is stored in backend stable variables in backend/main.mo to ensure persistence across canister upgrades",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-latest"
-        ],
-        "quotes": [
-          "Ensure that all production data is securely stored in the internal database"
-        ]
-      },
-      "acceptanceCriteria": [
-        "All data structures use stable storage declarations (stable var)",
-        "Data persists across canister upgrades without loss",
-        "No production data is stored in ephemeral memory or external databases"
+        "In Hand column displays calculated values (Total Completed - Despatch) for each operation",
+        "Calculation is performed on the frontend after fetching data",
+        "All 17 operations show correct calculated In Hand values",
+        "Zero or empty records display 0 for In Hand calculation"
       ]
     }
   ],
   "constraints": [
-    "All production data must remain in the Motoko backend stable storage; do not introduce external databases",
-    "Maintain single-actor architecture in backend/main.mo",
-    "Do not modify immutable frontend paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui",
-    "Role-based access must not break existing admin functionality",
-    "Query operations must remain accessible to both admin and viewer roles"
+    "Maintain the existing single-actor backend architecture in backend/main.mo",
+    "Do not modify the 17 predefined operations list or their order",
+    "Total Completed must always be a calculated cumulative value, never manually entered",
+    "In Hand must always be calculated as Total Completed minus Despatch",
+    "Batch dispatch entry is optional and must not interfere with individual operation dispatch entry"
   ],
   "nonGoals": [
-    "Implementing user registration or invitation system",
-    "Adding email notifications for role changes",
-    "Creating a separate admin panel for user management UI",
-    "Implementing audit logging for role changes",
-    "Adding multi-factor authentication",
-    "Creating custom authentication beyond Internet Identity"
+    "Changing the operation names or order",
+    "Adding backend support for batch dispatch as a separate entity",
+    "Modifying the database schema to store In Hand separately",
+    "Creating new dispatch tracking mechanisms outside daily production reports"
   ],
   "imageRequirements": {
     "required": [],

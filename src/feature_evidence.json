@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-create-a-custom-react-hook-usegetcallerrole-at-frontend-src-hooks-usegetcallerrole-ts-that-fetches-the-current-user-s-role-using-the-getcallerrole-backend-function",
-      "featureTitle": "Create a custom React hook 'useGetCallerRole' at frontend/src/hooks/useGetCallerRole.ts that fetches the current user's role using the getCallerRole backend function",
+      "featureId": "feature-update-the-dailyproductionreportform-component-at-frontend-src-components-dailyproductionreportform-tsx-to-change-the-total-completed-field-from-a-manual-input-to-a-read-only-calculated-field-that-automatically-computes-the-cumulative-running-total-by-fetching-all-previous-production-records-for-the-selected-operation-from-the-database-and-adding-today-s-production-value-to-the-sum",
+      "featureTitle": "Update the DailyProductionReportForm component at frontend/src/components/DailyProductionReportForm.tsx to change the 'Total Completed' field from a manual input to a read-only calculated field that automatically computes the cumulative running total by fetching all previous production records for the selected operation from the database and adding today's production value to the sum",
       "files": [
-        "frontend/src/hooks/useGetCallerRole.ts"
+        "frontend/src/components/DailyProductionReportForm.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -16,15 +16,15 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-34"
+        "REQ-54"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-the-authguard-component-at-frontend-src-components-authguard-tsx-to-check-caller-role-and-conditionally-render-components-show-full-application-to-admin-users-show-read-only-dashboard-access-to-viewer-users-and-show-access-denied-to-unauthenticated-users",
-      "featureTitle": "Update the AuthGuard component at frontend/src/components/AuthGuard.tsx to check caller role and conditionally render components: show full application to admin users, show read-only dashboard access to viewer users, and show access denied to unauthenticated users",
+      "featureId": "feature-update-the-dailyproductionreportform-component-to-automatically-calculate-and-display-the-in-hand-field-as-a-read-only-value-computed-as-total-completed-minus-despatch-in-hand-total-completed-despatch-recalculating-whenever-either-total-completed-or-despatch-values-change",
+      "featureTitle": "Update the DailyProductionReportForm component to automatically calculate and display the 'In Hand' field as a read-only value computed as Total Completed minus Despatch (In Hand = Total Completed - Despatch), recalculating whenever either Total Completed or Despatch values change",
       "files": [
-        "frontend/src/components/AuthGuard.tsx"
+        "frontend/src/components/DailyProductionReportForm.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -35,15 +35,15 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-35"
+        "REQ-56"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-the-layout-component-navigation-menu-at-frontend-src-components-layout-tsx-to-conditionally-display-menu-items-based-on-user-role-show-all-navigation-items-to-admin-users-show-only-dashboard-links-to-viewer-users",
-      "featureTitle": "Update the Layout component navigation menu at frontend/src/components/Layout.tsx to conditionally display menu items based on user role: show all navigation items to admin users, show only dashboard links to viewer users",
+      "featureId": "feature-add-an-optional-batch-dispatch-entry-input-field-at-the-top-of-the-dailyproductionreportform-component-that-when-filled-with-a-dispatch-quantity-value-automatically-populates-the-despatch-field-for-all-17-operations-with-the-same-value-allowing-administrators-to-enter-a-single-container-dispatch-count-that-applies-to-all-operations-simultaneously",
+      "featureTitle": "Add an optional 'Batch Dispatch Entry' input field at the top of the DailyProductionReportForm component that, when filled with a dispatch quantity value, automatically populates the Despatch field for all 17 operations with the same value, allowing administrators to enter a single container dispatch count that applies to all operations simultaneously",
       "files": [
-        "frontend/src/components/Layout.tsx"
+        "frontend/src/components/DailyProductionReportForm.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -54,21 +54,15 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-36"
+        "REQ-57"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-hide-or-disable-all-data-entry-forms-and-edit-delete-buttons-on-frontend-pages-for-viewer-users-disable-dailyproductionreportform-productionentrypage-form-dispatchentryform-and-edit-delete-actions-in-all-tables",
-      "featureTitle": "Hide or disable all data entry forms and edit/delete buttons on frontend pages for viewer users: disable DailyProductionReportForm, ProductionEntryPage form, DispatchEntryForm, and edit/delete actions in all tables",
+      "featureId": "feature-update-the-containerdailyreportpage-component-at-frontend-src-pages-containerdailyreportpage-tsx-to-display-calculated-values-for-each-operation-row-using-the-formula-in-hand-total-completed-despatch-ensuring-all-numeric-columns-show-accurate-computed-values-based-on-database-records",
+      "featureTitle": "Update the ContainerDailyReportPage component at frontend/src/pages/ContainerDailyReportPage.tsx to display calculated values for each operation row using the formula: In Hand = Total Completed - Despatch, ensuring all numeric columns show accurate computed values based on database records",
       "files": [
-        "frontend/src/components/DailyProductionReportForm.tsx",
-        "frontend/src/components/DailyProductionReportTable.tsx",
-        "frontend/src/components/DispatchEntryForm.tsx",
-        "frontend/src/pages/DailyProductionReportPage.tsx",
-        "frontend/src/pages/DispatchTrackingPage.tsx",
-        "frontend/src/pages/ProductionEntryPage.tsx",
-        "frontend/src/pages/WorkInHandPage.tsx"
+        "frontend/src/pages/ContainerDailyReportPage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -79,7 +73,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-37"
+        "REQ-58"
       ],
       "confidence": "high"
     }

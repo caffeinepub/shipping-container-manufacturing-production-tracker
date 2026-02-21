@@ -13,9 +13,9 @@ export default function OperationComparisonChart({ reports }: OperationCompariso
     const dataByOperation = new Map<string, number>();
 
     reports.forEach((report) => {
-      if (report.operationName) {
-        const currentTotal = dataByOperation.get(report.operationName) || 0;
-        dataByOperation.set(report.operationName, currentTotal + Number(report.totalCompleted));
+      if (report.operation && report.operation.name) {
+        const currentTotal = dataByOperation.get(report.operation.name) || 0;
+        dataByOperation.set(report.operation.name, currentTotal + Number(report.totalCompleted));
       }
     });
 

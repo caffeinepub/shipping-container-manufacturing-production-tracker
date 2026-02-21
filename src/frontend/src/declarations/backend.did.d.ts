@@ -15,8 +15,8 @@ export interface DailyProductionReport {
   'todayProduction' : bigint,
   'totalCompleted' : bigint,
   'date' : string,
-  'operationName' : string,
   'inHand' : bigint,
+  'operation' : Operation,
 }
 export interface DispatchRecord {
   'destination' : string,
@@ -25,6 +25,7 @@ export interface DispatchRecord {
   'trackingReference' : string,
   'quantity' : bigint,
 }
+export interface Operation { 'id' : bigint, 'name' : string }
 export interface ProductionRecord {
   'date' : string,
   'containerType' : string,
@@ -47,13 +48,16 @@ export interface _SERVICE {
   'addDispatchRecord' : ActorMethod<[DispatchRecord], undefined>,
   'addProductionRecord' : ActorMethod<[ProductionRecord], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
-  'createDailyProductionReport' : ActorMethod<[DailyProductionReport], bigint>,
-  'deleteDailyProductionReport' : ActorMethod<[bigint], boolean>,
+  'createDailyProductionReport' : ActorMethod<
+    [string, bigint, bigint, bigint, bigint],
+    bigint
+  >,
   'getAllDailyProductionReports' : ActorMethod<
     [],
     Array<DailyProductionReport>
   >,
   'getAllDispatchRecords' : ActorMethod<[], Array<DispatchRecord>>,
+  'getAllOperations' : ActorMethod<[], Array<Operation>>,
   'getAllProductionRecords' : ActorMethod<[], Array<ProductionRecord>>,
   'getCallerRole' : ActorMethod<[], [] | [string]>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
@@ -72,7 +76,7 @@ export interface _SERVICE {
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'saveCallerUserProfile' : ActorMethod<[string], undefined>,
   'updateDailyProductionReport' : ActorMethod<
-    [bigint, DailyProductionReport],
+    [bigint, bigint, bigint, bigint],
     boolean
   >,
   'updateUserRole' : ActorMethod<[Principal, string], undefined>,

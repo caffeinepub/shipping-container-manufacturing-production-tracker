@@ -1,33 +1,64 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useGetAllDailyProductionReports } from '../hooks/useGetAllDailyProductionReports';
+import { useGetCallerRole } from '../hooks/useGetCallerRole';
 import DailyProductionReportFilter from '../components/DailyProductionReportFilter';
 import DailyProductionReportTable from '../components/DailyProductionReportTable';
 import DailyProductionReportForm from '../components/DailyProductionReportForm';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
 import { DailyProductionReport } from '../backend';
 
 export default function ProductionHistoryPage() {
-  const [filteredReports, setFilteredReports] = useState<DailyProductionReport[]>([]);
   const [editingReport, setEditingReport] = useState<DailyProductionReport | null>(null);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [operationId, setOperationId] = useState('');
 
   const { data: allReports = [], isLoading } = useGetAllDailyProductionReports();
+  const { data: role } = useGetCallerRole();
 
-  // Display filtered reports if filter is applied, otherwise show all reports
-  const displayReports = useMemo(() => {
-    return filteredReports.length > 0 ? filteredReports : allReports;
-  }, [filteredReports, allReports]);
+  const isViewerRole = role === 'viewer';
 
-  const handleFilterChange = (filtered: DailyProductionReport[]) => {
-    setFilteredReports(filtered);
+  const handleFilter = (start: string, end: string, opId: string) => {
+    setStartDate(start);
+    setEndDate(end);
+    setOperationId(opId);
+  };
+
+  const handleClearFilter = () => {
+    setStartDate('');
+    setEndDate('');
+    setOperationId('');
   };
 
   const handleEdit = (report: DailyProductionReport) => {
-    setEditingReport(report);
+    if (!isViewerRole) {
+      setEditingReport(report);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const handleCancelEdit = () => {
     setEditingReport(null);
   };
+
+  // Apply filters
+  const filteredReports = allReports.filter((report) => {
+    let matches = true;
+
+    if (startDate && report.date < startDate) {
+      matches = false;
+    }
+
+    if (endDate && report.date > endDate) {
+      matches = false;
+    }
+
+    if (operationId && report.operation.id.toString() !== operationId) {
+      matches = false;
+    }
+
+    return matches;
+  });
 
   return (
     <div className="space-y-6">
@@ -36,9 +67,21 @@ export default function ProductionHistoryPage() {
         <p className="text-muted-foreground mt-1">View, filter, and edit historical production records</p>
       </div>
 
-      <DailyProductionReportFilter reports={allReports} onFilterChange={handleFilterChange} />
+      {isViewerRole && (
+        <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+          <div>
+            <p className="text-sm font-medium text-blue-900 dark:text-blue-100">Read-Only Access</p>
+            <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+              You have viewer access. Contact an administrator to update production data.
+            </p>
+          </div>
+        </div>
+      )}
 
-      {editingReport && (
+      <DailyProductionReportFilter onFilter={handleFilter} onClear={handleClearFilter} />
+
+      {editingReport && !isViewerRole && (
         <DailyProductionReportForm editingReport={editingReport} onCancelEdit={handleCancelEdit} />
       )}
 
@@ -50,7 +93,7 @@ export default function ProductionHistoryPage() {
           </div>
         </div>
       ) : (
-        <DailyProductionReportTable reports={displayReports} onEdit={handleEdit} />
+        <DailyProductionReportTable reports={filteredReports} onEdit={handleEdit} isViewerRole={isViewerRole} />
       )}
     </div>
   );

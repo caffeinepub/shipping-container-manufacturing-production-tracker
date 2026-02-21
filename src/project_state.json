@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 17,
+  "projectStateVersion": 23,
   "summary": "Responsive industrial production tracking web application for a Shipping Container Manufacturing Unit focused on 40ft High Cube Containers with role-based access control (Admin can add/edit, Viewer can only view dashboard), operation-wise daily production database, dashboard, history, dispatch tracking, and operation-wise status. Mobile-friendly with clean industrial UI.",
   "architectural_notes": [
     "Mobile-first responsive design for smartphone data entry",
@@ -11,7 +11,8 @@
     "Production Dashboard auto-refreshes when new production data is entered",
     "Monthly Production Summary displays monthly target of 100 containers with calculated metrics",
     "Role-based access control: Admin role can create/edit production data, Viewer role has read-only dashboard access",
-    "All production data stored securely in internal backend database with authentication required"
+    "All production data stored securely in internal backend database with authentication required",
+    "CONTAINER DAILY REPORT page uses industrial report styling: grey header row, thin table borders, aligned numeric columns, and compact Excel-like spacing"
   ],
   "known_issues": [],
   "isFixRequest": false,
@@ -263,6 +264,110 @@
         "REQ-37"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-create-a-new-containerdailyreportpage-component-at-frontend-src-pages-containerdailyreportpage-tsx-that-displays-a-structured-industrial-report-style-page-with-centered-title-container-daily-report-and-date-picker-for-report-selection",
+      "title": "Create a new ContainerDailyReportPage component at frontend/src/pages/ContainerDailyReportPage.tsx that displays a structured industrial report-style page with centered title 'CONTAINER DAILY REPORT' and date picker for report selection",
+      "reqIds": [
+        "REQ-40"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-bordered-table-component-in-containerdailyreportpage-that-displays-daily-production-data-with-columns-sl-no-operation-today-production-for-selected-date-total-completed-despatch-in-hand-styled-with-grey-header-row-thin-borders-right-aligned-numeric-columns-and-compact-spacing-similar-to-an-excel-production-sheet",
+      "title": "Build a bordered table component in ContainerDailyReportPage that displays daily production data with columns: Sl No, Operation, Today Production (for selected date), Total Completed, Despatch, In Hand, styled with grey header row, thin borders, right-aligned numeric columns, and compact spacing similar to an Excel production sheet",
+      "reqIds": [
+        "REQ-41"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fetch-and-filter-daily-production-report-data-in-containerdailyreportpage-based-on-the-selected-date-using-the-usegetalldailyproductionreports-hook-displaying-only-records-matching-the-selected-date-in-the-table",
+      "title": "Fetch and filter daily production report data in ContainerDailyReportPage based on the selected date using the useGetAllDailyProductionReports hook, displaying only records matching the selected date in the table",
+      "reqIds": [
+        "REQ-42"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-navigation-menu-item-in-the-layout-component-linking-to-the-container-daily-report-page-at-route-container-daily-report",
+      "title": "Add a navigation menu item in the Layout component linking to the Container Daily Report page at route /container-daily-report",
+      "reqIds": [
+        "REQ-43"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-configure-routing-in-app-tsx-to-add-the-container-daily-report-page-at-route-container-daily-report-protected-by-authguard",
+      "title": "Configure routing in App.tsx to add the Container Daily Report page at route /container-daily-report, protected by AuthGuard",
+      "reqIds": [
+        "REQ-44"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-replace-the-operation-name-text-input-field-in-frontend-src-components-dailyproductionreportform-tsx-with-a-fixed-dropdown-select-element-that-displays-only-the-17-predefined-operations-in-exact-order-boxing-through-black-paint-removing-any-ability-to-type-custom-operation-names",
+      "title": "Replace the operation_name text input field in frontend/src/components/DailyProductionReportForm.tsx with a fixed dropdown (select element) that displays only the 17 predefined operations in exact order (Boxing through Black Paint), removing any ability to type custom operation names",
+      "reqIds": [
+        "REQ-50"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-containerdailyreportpage-component-at-frontend-src-pages-containerdailyreportpage-tsx-to-always-display-all-17-predefined-operations-in-the-exact-order-1-17-in-the-report-table-showing-zero-values-or-empty-rows-for-operations-that-have-no-data-entered-for-the-selected-date",
+      "title": "Update the ContainerDailyReportPage component at frontend/src/pages/ContainerDailyReportPage.tsx to always display all 17 predefined operations in the exact order (1-17) in the report table, showing zero values or empty rows for operations that have no data entered for the selected date",
+      "reqIds": [
+        "REQ-51"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-dailyproductionreporttable-component-at-frontend-src-components-dailyproductionreporttable-tsx-to-remove-the-delete-action-button-for-all-daily-production-report-records-as-operations-are-now-locked-and-cannot-be-deleted",
+      "title": "Update the DailyProductionReportTable component at frontend/src/components/DailyProductionReportTable.tsx to remove the delete action button for all daily production report records, as operations are now locked and cannot be deleted",
+      "reqIds": [
+        "REQ-52"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-dailyproductionreportform-component-to-disable-or-hide-the-operation-name-field-when-in-edit-mode-preventing-admins-from-changing-the-operation-name-of-existing-records",
+      "title": "Update the DailyProductionReportForm component to disable or hide the operation_name field when in edit mode, preventing admins from changing the operation name of existing records",
+      "reqIds": [
+        "REQ-53"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-dailyproductionreportform-component-at-frontend-src-components-dailyproductionreportform-tsx-to-change-the-total-completed-field-from-a-manual-input-to-a-read-only-calculated-field-that-automatically-computes-the-cumulative-running-total-by-fetching-all-previous-production-records-for-the-selected-operation-from-the-database-and-adding-today-s-production-value-to-the-sum",
+      "title": "Update the DailyProductionReportForm component at frontend/src/components/DailyProductionReportForm.tsx to change the 'Total Completed' field from a manual input to a read-only calculated field that automatically computes the cumulative running total by fetching all previous production records for the selected operation from the database and adding today's production value to the sum",
+      "reqIds": [
+        "REQ-54"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-dailyproductionreportform-component-to-automatically-calculate-and-display-the-in-hand-field-as-a-read-only-value-computed-as-total-completed-minus-despatch-in-hand-total-completed-despatch-recalculating-whenever-either-total-completed-or-despatch-values-change",
+      "title": "Update the DailyProductionReportForm component to automatically calculate and display the 'In Hand' field as a read-only value computed as Total Completed minus Despatch (In Hand = Total Completed - Despatch), recalculating whenever either Total Completed or Despatch values change",
+      "reqIds": [
+        "REQ-56"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-optional-batch-dispatch-entry-input-field-at-the-top-of-the-dailyproductionreportform-component-that-when-filled-with-a-dispatch-quantity-value-automatically-populates-the-despatch-field-for-all-17-operations-with-the-same-value-allowing-administrators-to-enter-a-single-container-dispatch-count-that-applies-to-all-operations-simultaneously",
+      "title": "Add an optional 'Batch Dispatch Entry' input field at the top of the DailyProductionReportForm component that, when filled with a dispatch quantity value, automatically populates the Despatch field for all 17 operations with the same value, allowing administrators to enter a single container dispatch count that applies to all operations simultaneously",
+      "reqIds": [
+        "REQ-57"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-containerdailyreportpage-component-at-frontend-src-pages-containerdailyreportpage-tsx-to-display-calculated-values-for-each-operation-row-using-the-formula-in-hand-total-completed-despatch-ensuring-all-numeric-columns-show-accurate-computed-values-based-on-database-records",
+      "title": "Update the ContainerDailyReportPage component at frontend/src/pages/ContainerDailyReportPage.tsx to display calculated values for each operation row using the formula: In Hand = Total Completed - Despatch, ensuring all numeric columns show accurate computed values based on database records",
+      "reqIds": [
+        "REQ-58"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -417,6 +522,96 @@
       "summary": "Verify that all production data (ProductionRecord, DispatchRecord, DailyProductionReport, UserProfile) is stored in backend stable variables in backend/main.mo to ensure persistence across canister upgrades",
       "reqIds": [
         "REQ-39"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-28",
+      "summary": "Create CONTAINER DAILY REPORT page with industrial report table style showing date picker and tabular production data (Sl No, Operation, Today Production, Total Completed, Despatch, In Hand) styled like an official factory Excel production sheet",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-29",
+      "summary": "Lock down operations to exactly 17 predefined operations (Boxing, Welding/Finishing, Rear Wall, Front Wall, Side Wall, Roof, Rear Door, Blasting & Primer, Final Paint, Gasket, DLM, Plywood, Floor Screw, Decal, Data Plate, Sikha, Black Paint) in exact order 1-17",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-30",
+      "summary": "Migrate existing production data to align with the 17 predefined operations, mapping or archiving any operations outside this list",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-31",
+      "summary": "Remove add/delete operation capabilities from backend CRUD functions, allowing only numeric value updates for today_production, total_completed, and despatched",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-32",
+      "summary": "Replace operation name input field with a fixed dropdown showing only the 17 predefined operations in Daily Production Report form, removing custom operation name entry",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-33",
+      "summary": "Update Container Daily Report table to always display all 17 operations in exact predefined order (1-17), showing rows even when no data exists (zero entries)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-34",
+      "summary": "Define a constant array of exactly 17 predefined operations in backend/main.mo in this exact order: 1. Boxing, 2. Welding/Finishing, 3. Rear Wall, 4. Front Wall, 5. Side Wall, 6. Roof, 7. Rear Door, 8. Blasting & Primer, 9. Final Paint, 10. Gasket, 11. DLM, 12. Plywood, 13. Floor Screw, 14. Decal, 15. Data Plate, 16. Sikha, 17. Black Paint",
+      "reqIds": [
+        "REQ-45"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-35",
+      "summary": "Create a migration function in backend/main.mo that maps all existing Daily_Production_Report records to the 17 predefined operations, archiving or logging any operation names that do not match the predefined list",
+      "reqIds": [
+        "REQ-46"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-36",
+      "summary": "Update the createDailyProductionReport function in backend/main.mo to validate that the operation_name parameter matches one of the 17 predefined operations exactly, returning an error if it does not match",
+      "reqIds": [
+        "REQ-47"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-37",
+      "summary": "Update the updateDailyProductionReport function in backend/main.mo to only allow updates to today_production, total_completed, and despatched numeric fields, rejecting any attempts to change the operation_name field",
+      "reqIds": [
+        "REQ-48"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-38",
+      "summary": "Remove or disable the deleteDailyProductionReport function in backend/main.mo to prevent deletion of daily production report records",
+      "reqIds": [
+        "REQ-49"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-39",
+      "summary": "Add single dispatch entry field at top of production update form that auto-applies the same dispatch quantity to all 17 operations when filled",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-41",
+      "summary": "Update the backend createDailyProductionReport and updateDailyProductionReport functions in backend/main.mo to automatically calculate and store the cumulative total_completed value by querying all previous daily production reports for the given operation_id, summing their today_production values, and adding the current today_production value",
+      "reqIds": [
+        "REQ-55"
       ],
       "status": "pending"
     }

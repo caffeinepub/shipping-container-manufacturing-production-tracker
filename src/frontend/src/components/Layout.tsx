@@ -1,5 +1,5 @@
 import { useNavigate, useRouterState } from '@tanstack/react-router';
-import { Factory, LayoutDashboard, ClipboardList, History, Truck, Package, Menu, X, FileText, Activity } from 'lucide-react';
+import { Factory, LayoutDashboard, ClipboardList, History, Truck, Package, Menu, X, FileText, Activity, FileSpreadsheet } from 'lucide-react';
 import { useState } from 'react';
 import LoginButton from './LoginButton';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
@@ -21,6 +21,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { path: '/production/entry', label: 'Production Entry', icon: ClipboardList },
     { path: '/production/history', label: 'History', icon: History },
     { path: '/daily-production-report', label: 'Daily Production Report', icon: FileText },
+    { path: '/container-daily-report', label: 'Container Daily Report', icon: FileSpreadsheet },
     { path: '/production-history', label: 'Production History', icon: History },
     { path: '/dispatch', label: 'Dispatch', icon: Truck },
     { path: '/work-in-hand', label: 'Work in Hand', icon: Package },

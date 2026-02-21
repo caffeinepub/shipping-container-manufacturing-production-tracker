@@ -9,6 +9,7 @@ import DispatchTrackingPage from './pages/DispatchTrackingPage';
 import WorkInHandPage from './pages/WorkInHandPage';
 import DailyProductionReportPage from './pages/DailyProductionReportPage';
 import ProductionDashboardPage from './pages/ProductionDashboardPage';
+import ContainerDailyReportPage from './pages/ContainerDailyReportPage';
 import AuthGuard from './components/AuthGuard';
 
 const rootRoute = createRootRoute({
@@ -109,6 +110,16 @@ const dailyProductionReportRoute = createRoute({
   ),
 });
 
+const containerDailyReportRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/container-daily-report',
+  component: () => (
+    <AuthGuard>
+      <ContainerDailyReportPage />
+    </AuthGuard>
+  ),
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   dashboardRoute,
@@ -119,6 +130,7 @@ const routeTree = rootRoute.addChildren([
   dispatchRoute,
   workInHandRoute,
   dailyProductionReportRoute,
+  containerDailyReportRoute,
 ]);
 
 const router = createRouter({ routeTree });

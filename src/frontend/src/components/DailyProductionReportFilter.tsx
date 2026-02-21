@@ -1,123 +1,94 @@
 import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, X, Filter } from 'lucide-react';
-import { DailyProductionReport } from '../backend';
-
-const DEFAULT_OPERATIONS = [
-  'Boxing',
-  'Welding/Finishing',
-  'Rear Wall',
-  'Front Wall',
-  'Side Wall',
-  'Roof',
-  'Rear Door',
-  'Blasting & Primer',
-  'Final Paint',
-  'Gasket',
-  'DLM',
-  'Plywood',
-  'Floor Screw',
-  'Decal',
-  'Data Plate',
-  'Sikha',
-  'Black Paint',
-];
+import { useGetAllOperations } from '../hooks/useGetAllOperations';
+import { Filter, X } from 'lucide-react';
 
 interface DailyProductionReportFilterProps {
-  reports: DailyProductionReport[];
-  onFilterChange: (filtered: DailyProductionReport[]) => void;
+  onFilter: (startDate: string, endDate: string, operationId: string) => void;
+  onClear: () => void;
 }
 
-export default function DailyProductionReportFilter({ reports, onFilterChange }: DailyProductionReportFilterProps) {
+export default function DailyProductionReportFilter({ onFilter, onClear }: DailyProductionReportFilterProps) {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [operationName, setOperationName] = useState('');
+  const [operationId, setOperationId] = useState('');
+  const { data: operations = [], isLoading: operationsLoading } = useGetAllOperations();
 
   const handleApply = () => {
-    let filtered = [...reports];
-
-    if (startDate && endDate) {
-      filtered = filtered.filter((report) => report.date >= startDate && report.date <= endDate);
-    }
-
-    if (operationName) {
-      filtered = filtered.filter((report) => report.operationName === operationName);
-    }
-
-    onFilterChange(filtered);
+    onFilter(startDate, endDate, operationId);
   };
 
   const handleClear = () => {
     setStartDate('');
     setEndDate('');
-    setOperationName('');
-    onFilterChange([]);
+    setOperationId('');
+    onClear();
   };
 
   return (
     <Card>
-      <CardContent className="p-4">
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2 text-sm font-medium">
-            <Filter className="h-4 w-4" />
-            Filter Reports
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Filter className="h-5 w-5" />
+          Filter Reports
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="startDate">Start Date</Label>
+            <Input
+              id="startDate"
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              max={new Date().toISOString().split('T')[0]}
+            />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-            <div className="space-y-2">
-              <Label htmlFor="startDate" className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                Start Date
-              </Label>
-              <Input
-                id="startDate"
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                max={endDate || undefined}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="endDate" className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                End Date
-              </Label>
-              <Input
-                id="endDate"
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                min={startDate || undefined}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="operationFilter">Operation</Label>
-              <Select value={operationName} onValueChange={setOperationName}>
-                <SelectTrigger id="operationFilter">
-                  <SelectValue placeholder="All operations" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">All operations</SelectItem>
-                  {DEFAULT_OPERATIONS.map((operation) => (
-                    <SelectItem key={operation} value={operation}>
-                      {operation}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex gap-2">
-              <Button onClick={handleApply} className="flex-1">
-                Apply Filter
-              </Button>
-              <Button onClick={handleClear} variant="outline" size="icon">
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="endDate">End Date</Label>
+            <Input
+              id="endDate"
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              max={new Date().toISOString().split('T')[0]}
+              min={startDate}
+            />
           </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="operationId">Operation</Label>
+            <Select value={operationId} onValueChange={setOperationId} disabled={operationsLoading}>
+              <SelectTrigger id="operationId">
+                <SelectValue placeholder="All operations" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All operations</SelectItem>
+                {operations.map((operation) => (
+                  <SelectItem key={operation.id.toString()} value={operation.id.toString()}>
+                    {operation.id}. {operation.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="flex gap-2 mt-4">
+          <Button onClick={handleApply} className="flex-1">
+            <Filter className="mr-2 h-4 w-4" />
+            Apply Filters
+          </Button>
+          <Button onClick={handleClear} variant="outline">
+            <X className="mr-2 h-4 w-4" />
+            Clear
+          </Button>
         </div>
       </CardContent>
     </Card>
