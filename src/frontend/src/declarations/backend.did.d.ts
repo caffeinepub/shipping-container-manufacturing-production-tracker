@@ -10,76 +10,44 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
-export interface DailyProductionReport {
-  'despatched' : bigint,
+export interface DailyOperationProduction {
+  'id' : bigint,
   'todayProduction' : bigint,
-  'totalCompleted' : bigint,
   'date' : string,
-  'inHand' : bigint,
-  'operation' : Operation,
+  'despatch' : bigint,
+  'operationId' : bigint,
 }
-export interface DispatchRecord {
-  'destination' : string,
-  'dispatchDate' : string,
-  'containerType' : string,
-  'trackingReference' : string,
-  'quantity' : bigint,
-}
-export interface Operation { 'id' : bigint, 'name' : string }
-export interface ProductionRecord {
-  'date' : string,
-  'containerType' : string,
-  'shift' : string,
-  'notes' : string,
-  'quantity' : bigint,
-}
+export interface Operation { 'operationName' : string, 'operationId' : bigint }
 export interface UserProfile { 'name' : string }
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
-export interface WorkInHandRecord {
-  'currentInventory' : bigint,
-  'containerType' : string,
-  'dispatchedQuantity' : bigint,
-  'producedQuantity' : bigint,
-}
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
-  'addDispatchRecord' : ActorMethod<[DispatchRecord], undefined>,
-  'addProductionRecord' : ActorMethod<[ProductionRecord], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'calculateTotalCompleted' : ActorMethod<[bigint, string], bigint>,
   'createDailyProductionReport' : ActorMethod<
-    [string, bigint, bigint, bigint, bigint],
+    [string, bigint, bigint, bigint],
     bigint
   >,
   'getAllDailyProductionReports' : ActorMethod<
     [],
-    Array<DailyProductionReport>
+    Array<DailyOperationProduction>
   >,
-  'getAllDispatchRecords' : ActorMethod<[], Array<DispatchRecord>>,
   'getAllOperations' : ActorMethod<[], Array<Operation>>,
-  'getAllProductionRecords' : ActorMethod<[], Array<ProductionRecord>>,
-  'getCallerRole' : ActorMethod<[], [] | [string]>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
-  'getDailyProductionReport' : ActorMethod<
-    [bigint],
-    [] | [DailyProductionReport]
-  >,
-  'getProductionRecordsByDateRange' : ActorMethod<
-    [string, string],
-    Array<ProductionRecord>
+  'getReportsByOperationAndDateRange' : ActorMethod<
+    [bigint, string, string],
+    Array<DailyOperationProduction>
   >,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
-  'getWorkInHandStatus' : ActorMethod<[], Array<WorkInHandRecord>>,
-  'initializeDefaultReports' : ActorMethod<[], undefined>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
-  'saveCallerUserProfile' : ActorMethod<[string], undefined>,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'updateDailyProductionReport' : ActorMethod<
-    [bigint, bigint, bigint, bigint],
+    [bigint, string, bigint, bigint],
     boolean
   >,
-  'updateUserRole' : ActorMethod<[Principal, string], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

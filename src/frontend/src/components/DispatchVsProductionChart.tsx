@@ -2,25 +2,29 @@ import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { EnrichedDailyProductionReport } from '../hooks/useGetAllDailyProductionReports';
-import { TrendingUp } from 'lucide-react';
+import { GitCompare } from 'lucide-react';
 
-interface ProductionTrendChartProps {
+interface DispatchVsProductionChartProps {
   reports: EnrichedDailyProductionReport[];
 }
 
-export default function ProductionTrendChart({ reports }: ProductionTrendChartProps) {
+export default function DispatchVsProductionChart({ reports }: DispatchVsProductionChartProps) {
   const chartData = useMemo(() => {
-    const dataByDate = new Map<string, number>();
+    const dataByDate = new Map<string, { production: number; dispatch: number }>();
 
     reports.forEach((report) => {
-      const currentTotal = dataByDate.get(report.date) || 0;
-      dataByDate.set(report.date, currentTotal + Number(report.todayProduction));
+      const existing = dataByDate.get(report.date) || { production: 0, dispatch: 0 };
+      dataByDate.set(report.date, {
+        production: existing.production + Number(report.todayProduction),
+        dispatch: existing.dispatch + Number(report.despatch),
+      });
     });
 
     const data = Array.from(dataByDate.entries())
-      .map(([date, production]) => ({
+      .map(([date, values]) => ({
         date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        production,
+        production: values.production,
+        dispatch: values.dispatch,
       }))
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
       .slice(-30);
@@ -33,12 +37,12 @@ export default function ProductionTrendChart({ reports }: ProductionTrendChartPr
       <Card className="border-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5" />
-            Monthly Production Trend
+            <GitCompare className="h-5 w-5" />
+            Dispatch vs Production
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-center text-muted-foreground py-8">No production data available</p>
+          <p className="text-center text-muted-foreground py-8">No data available</p>
         </CardContent>
       </Card>
     );
@@ -48,8 +52,8 @@ export default function ProductionTrendChart({ reports }: ProductionTrendChartPr
     <Card className="border-border">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <TrendingUp className="h-5 w-5 text-primary" />
-          Monthly Production Trend
+          <GitCompare className="h-5 w-5 text-primary" />
+          Dispatch vs Production Comparison
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -83,8 +87,18 @@ export default function ProductionTrendChart({ reports }: ProductionTrendChartPr
               stroke="#2563EB"
               strokeWidth={3}
               dot={{ fill: '#2563EB', r: 4 }}
-              activeDot={{ r: 6, fill: '#B91C1C' }}
-              name="Daily Production"
+              name="Production"
+              isAnimationActive={true}
+              animationDuration={800}
+              animationEasing="ease-out"
+            />
+            <Line
+              type="monotone"
+              dataKey="dispatch"
+              stroke="#16A34A"
+              strokeWidth={3}
+              dot={{ fill: '#16A34A', r: 4 }}
+              name="Dispatch"
               isAnimationActive={true}
               animationDuration={800}
               animationEasing="ease-out"

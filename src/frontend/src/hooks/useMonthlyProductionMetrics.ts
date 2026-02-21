@@ -1,28 +1,29 @@
 import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useGetAllDailyProductionReports } from './useGetAllDailyProductionReports';
 
-export interface MonthlyProductionMetrics {
-  totalProducedThisMonth: number;
+interface MonthlyMetrics {
+  totalProduced: number;
   remainingToTarget: number;
   completionPercentage: number;
   dailyAverage: number;
+  capacityUtilization: number;
+  productionEfficiency: number;
+  estimatedMonthlyOutput: number;
 }
 
-const MONTHLY_TARGET = 100;
-
 export function useMonthlyProductionMetrics() {
-  const { data: reports = [], isLoading, error } = useGetAllDailyProductionReports();
+  const { data: allReports = [], isLoading } = useGetAllDailyProductionReports();
 
-  const metrics = useMemo<MonthlyProductionMetrics>(() => {
-    // Get current month and year
+  const metrics = useMemo(() => {
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
     const currentDay = now.getDate();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
     // Filter reports for current month
-    const currentMonthReports = reports.filter((report) => {
-      if (!report.date) return false;
+    const monthlyReports = allReports.filter((report) => {
       const reportDate = new Date(report.date);
       return (
         reportDate.getMonth() === currentMonth &&
@@ -30,32 +31,48 @@ export function useMonthlyProductionMetrics() {
       );
     });
 
-    // Calculate total containers produced this month
-    const totalProducedThisMonth = currentMonthReports.reduce(
+    // Calculate total production for the month
+    const totalProduced = monthlyReports.reduce(
       (sum, report) => sum + Number(report.todayProduction),
       0
     );
 
-    // Calculate remaining to achieve target
-    const remainingToTarget = Math.max(0, MONTHLY_TARGET - totalProducedThisMonth);
+    // Monthly target is 100 containers
+    const monthlyTarget = 100;
+    const remainingToTarget = Math.max(0, monthlyTarget - totalProduced);
+    const completionPercentage = Math.min(100, Math.round((totalProduced / monthlyTarget) * 100));
 
-    // Calculate completion percentage
-    const completionPercentage = Math.min(100, (totalProducedThisMonth / MONTHLY_TARGET) * 100);
+    // Calculate daily average
+    const dailyAverage = currentDay > 0 ? totalProduced / currentDay : 0;
 
-    // Calculate daily average (total produced / days elapsed in current month)
-    const dailyAverage = currentDay > 0 ? totalProducedThisMonth / currentDay : 0;
+    // Calculate capacity utilization (assuming max capacity of 150 containers/month)
+    const maxCapacity = 150;
+    const capacityUtilization = Math.min(100, Math.round((totalProduced / maxCapacity) * 100));
+
+    // Calculate production efficiency (consistency metric)
+    // Based on variance from target daily production (100/30 = 3.33 per day)
+    const targetDailyProduction = monthlyTarget / daysInMonth;
+    const efficiency = dailyAverage > 0 
+      ? Math.min(100, Math.round((Math.min(dailyAverage, targetDailyProduction) / targetDailyProduction) * 100))
+      : 0;
+
+    // Estimated monthly output projection
+    const estimatedMonthlyOutput = dailyAverage * daysInMonth;
 
     return {
-      totalProducedThisMonth,
+      totalProduced,
       remainingToTarget,
       completionPercentage,
       dailyAverage,
+      capacityUtilization,
+      productionEfficiency: efficiency,
+      estimatedMonthlyOutput,
     };
-  }, [reports]);
+  }, [allReports]);
 
-  return {
-    metrics,
-    isLoading,
-    error,
-  };
+  return useQuery<MonthlyMetrics>({
+    queryKey: ['monthlyProductionMetrics', metrics],
+    queryFn: async () => metrics,
+    enabled: !isLoading,
+  });
 }

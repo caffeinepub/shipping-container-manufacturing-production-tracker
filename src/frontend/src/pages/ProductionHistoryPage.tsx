@@ -3,12 +3,9 @@ import { useGetAllDailyProductionReports } from '../hooks/useGetAllDailyProducti
 import { useGetCallerRole } from '../hooks/useGetCallerRole';
 import DailyProductionReportFilter from '../components/DailyProductionReportFilter';
 import DailyProductionReportTable from '../components/DailyProductionReportTable';
-import DailyProductionReportForm from '../components/DailyProductionReportForm';
 import { Loader2, AlertCircle } from 'lucide-react';
-import { DailyProductionReport } from '../backend';
 
 export default function ProductionHistoryPage() {
-  const [editingReport, setEditingReport] = useState<DailyProductionReport | null>(null);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [operationId, setOperationId] = useState('');
@@ -16,7 +13,7 @@ export default function ProductionHistoryPage() {
   const { data: allReports = [], isLoading } = useGetAllDailyProductionReports();
   const { data: role } = useGetCallerRole();
 
-  const isViewerRole = role === 'viewer';
+  const isViewerRole = role !== 'admin';
 
   const handleFilter = (start: string, end: string, opId: string) => {
     setStartDate(start);
@@ -28,17 +25,6 @@ export default function ProductionHistoryPage() {
     setStartDate('');
     setEndDate('');
     setOperationId('');
-  };
-
-  const handleEdit = (report: DailyProductionReport) => {
-    if (!isViewerRole) {
-      setEditingReport(report);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setEditingReport(null);
   };
 
   // Apply filters
@@ -53,7 +39,7 @@ export default function ProductionHistoryPage() {
       matches = false;
     }
 
-    if (operationId && report.operation.id.toString() !== operationId) {
+    if (operationId && report.operationId.toString() !== operationId) {
       matches = false;
     }
 
@@ -64,7 +50,7 @@ export default function ProductionHistoryPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-foreground">Production History</h1>
-        <p className="text-muted-foreground mt-1">View, filter, and edit historical production records</p>
+        <p className="text-muted-foreground mt-1">View and filter historical production records</p>
       </div>
 
       {isViewerRole && (
@@ -81,10 +67,6 @@ export default function ProductionHistoryPage() {
 
       <DailyProductionReportFilter onFilter={handleFilter} onClear={handleClearFilter} />
 
-      {editingReport && !isViewerRole && (
-        <DailyProductionReportForm editingReport={editingReport} onCancelEdit={handleCancelEdit} />
-      )}
-
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <div className="text-center space-y-4">
@@ -93,7 +75,7 @@ export default function ProductionHistoryPage() {
           </div>
         </div>
       ) : (
-        <DailyProductionReportTable reports={filteredReports} onEdit={handleEdit} isViewerRole={isViewerRole} />
+        <DailyProductionReportTable reports={filteredReports} onEdit={() => {}} isViewerRole={isViewerRole} />
       )}
     </div>
   );

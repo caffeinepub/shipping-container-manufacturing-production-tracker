@@ -8,9 +8,11 @@ export function useGetAllOperations() {
   return useQuery<Operation[]>({
     queryKey: ['operations'],
     queryFn: async () => {
-      if (!actor) return [];
+      if (!actor) throw new Error('Actor not available');
       return actor.getAllOperations();
     },
     enabled: !!actor && !isFetching,
+    retry: 2,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }

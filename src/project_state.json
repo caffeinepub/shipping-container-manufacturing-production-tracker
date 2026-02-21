@@ -1,21 +1,23 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 23,
-  "summary": "Responsive industrial production tracking web application for a Shipping Container Manufacturing Unit focused on 40ft High Cube Containers with role-based access control (Admin can add/edit, Viewer can only view dashboard), operation-wise daily production database, dashboard, history, dispatch tracking, and operation-wise status. Mobile-friendly with clean industrial UI.",
+  "projectStateVersion": 33,
+  "summary": "Responsive enterprise-grade Container Manufacturing Digital Production Control Platform with dark industrial + premium corporate theme for internal monitoring, client presentations, and investor demonstrations. Features a hero landing page with animated production counter, real-time dashboard with KPI cards (animated numbers, progress bars), professional industrial production report table (sticky header, compact rows, glow effects), data visualization charts (monthly trend line, operation-wise bar chart, dispatch vs production comparison with smooth animations), Operational Insights tab (average daily output, capacity utilization %, production efficiency %, monthly projection), Presentation Mode (hides admin controls for executive view), and PDF export. Uses Deep Navy (#0F172A) and Steel Grey (#1E293B) backgrounds, Container Red (#B91C1C), Electric Blue (#2563EB), Industrial Green (#16A34A) accents, subtle blueprint grid texture, with fast loading and smooth transitions optimized for desktop and tablet.",
   "architectural_notes": [
     "Mobile-first responsive design for smartphone data entry",
     "Clean industrial dashboard style UI with table layout and summary cards",
-    "Operation-specific production tracking with 17 predefined manufacturing operations for 40ft High Cube Containers",
     "Daily_Production_Report table structure: id, date, operation_name, today_production, total_completed, despatched, in_hand",
     "Admin Production Update Panel performs automatic calculation: In Hand = Total Completed - Despatched",
     "Production Dashboard auto-refreshes when new production data is entered",
     "Monthly Production Summary displays monthly target of 100 containers with calculated metrics",
     "Role-based access control: Admin role can create/edit production data, Viewer role has read-only dashboard access",
     "All production data stored securely in internal backend database with authentication required",
-    "CONTAINER DAILY REPORT page uses industrial report styling: grey header row, thin table borders, aligned numeric columns, and compact Excel-like spacing"
+    "CONTAINER DAILY REPORT page uses industrial report styling: grey header row, thin table borders, aligned numeric columns, and compact Excel-like spacing",
+    "CONTAINER DAILY REPORT interface uses a fixed 17-row table structure with inline editable cells for Today Production (Excel-like editing)"
   ],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "Report entry page not working (user reported issue)"
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
       "id": "feature-implement-admin-authentication-system-using-internet-identity-that-restricts-access-to-all-production-features-to-authenticated-administrators-only",
@@ -368,6 +370,350 @@
         "REQ-58"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-remove-the-existing-dailyproductionreportform-component-at-frontend-src-components-dailyproductionreportform-tsx-entirely-from-the-codebase-as-it-is-being-replaced-with-an-inline-table-based-entry-system",
+      "title": "Remove the existing DailyProductionReportForm component at frontend/src/components/DailyProductionReportForm.tsx entirely from the codebase as it is being replaced with an inline table-based entry system",
+      "reqIds": [
+        "REQ-59"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-new-containerdailyreportentrypage-component-at-frontend-src-pages-containerdailyreportentrypage-tsx-that-displays-the-title-container-daily-report-centered-at-the-top-a-date-selector-for-choosing-the-report-date-and-a-single-despatch-entry-input-field-at-the-top-that-when-filled-auto-applies-the-same-dispatch-quantity-to-all-17-operation-rows",
+      "title": "Create a new ContainerDailyReportEntryPage component at frontend/src/pages/ContainerDailyReportEntryPage.tsx that displays the title 'CONTAINER DAILY REPORT' centered at the top, a date selector for choosing the report date, and a single Despatch entry input field at the top that when filled auto-applies the same dispatch quantity to all 17 operation rows",
+      "reqIds": [
+        "REQ-60"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-bordered-table-in-containerdailyreportentrypage-with-exactly-17-fixed-rows-one-per-operation-and-columns-sl-no-operation-today-production-total-completed-despatch-in-hand-displaying-all-17-predefined-operations-in-exact-order-boxing-welding-finishing-rear-wall-front-wall-side-wall-roof-rear-door-blasting-primer-final-paint-gasket-dlm-plywood-floor-screw-decal-data-plate-sikha-black-paint",
+      "title": "Build a bordered table in ContainerDailyReportEntryPage with exactly 17 fixed rows (one per operation) and columns: Sl No, Operation, Today Production, Total Completed, Despatch, In Hand, displaying all 17 predefined operations in exact order (Boxing, Welding/Finishing, Rear Wall, Front Wall, Side Wall, Roof, Rear Door, Blasting & Primer, Final Paint, Gasket, DLM, Plywood, Floor Screw, Decal, Data Plate, Sikha, Black Paint)",
+      "reqIds": [
+        "REQ-61"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-inline-editable-cells-for-the-today-production-column-in-the-containerdailyreportentrypage-table-allowing-admin-users-to-directly-enter-production-numbers-for-each-operation-by-clicking-into-the-cell-excel-like-behavior-with-input-validation-for-numeric-values-only",
+      "title": "Implement inline editable cells for the Today Production column in the ContainerDailyReportEntryPage table, allowing admin users to directly enter production numbers for each operation by clicking into the cell (Excel-like behavior), with input validation for numeric values only",
+      "reqIds": [
+        "REQ-62"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-auto-calculate-and-display-the-total-completed-value-for-each-operation-row-in-containerdailyreportentrypage-using-the-formula-previous-total-today-production-where-previous-total-is-fetched-by-querying-all-historical-daily-production-reports-for-that-operation-from-the-backend-and-summing-their-today-production-values",
+      "title": "Auto-calculate and display the Total Completed value for each operation row in ContainerDailyReportEntryPage using the formula: Previous Total + Today Production, where Previous Total is fetched by querying all historical daily production reports for that operation from the backend and summing their today_production values",
+      "reqIds": [
+        "REQ-63"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-auto-calculate-and-display-the-in-hand-value-for-each-operation-row-in-containerdailyreportentrypage-using-the-formula-total-completed-despatch-updating-automatically-whenever-either-total-completed-or-despatch-values-change",
+      "title": "Auto-calculate and display the In Hand value for each operation row in ContainerDailyReportEntryPage using the formula: Total Completed - Despatch, updating automatically whenever either Total Completed or Despatch values change",
+      "reqIds": [
+        "REQ-64"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-style-the-containerdailyreportentrypage-table-to-look-like-an-official-factory-production-sheet-with-compact-layout-visible-thin-borders-on-all-cells-grey-header-row-right-aligned-numeric-columns-today-production-total-completed-despatch-in-hand-and-minimal-spacing-between-rows-and-columns",
+      "title": "Style the ContainerDailyReportEntryPage table to look like an official factory production sheet with compact layout, visible thin borders on all cells, grey header row, right-aligned numeric columns (Today Production, Total Completed, Despatch, In Hand), and minimal spacing between rows and columns",
+      "reqIds": [
+        "REQ-65"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-save-functionality-in-containerdailyreportentrypage-that-when-admin-clicks-a-save-button-creates-or-updates-daily-production-report-records-in-the-backend-for-all-17-operations-with-the-selected-date-entered-today-production-values-and-auto-applied-despatch-values-using-usecreatedailyproductionreport-or-useupdatedailyproductionreport-hooks",
+      "title": "Implement save functionality in ContainerDailyReportEntryPage that when admin clicks a Save button, creates or updates daily production report records in the backend for all 17 operations with the selected date, entered Today Production values, and auto-applied Despatch values, using useCreateDailyProductionReport or useUpdateDailyProductionReport hooks",
+      "reqIds": [
+        "REQ-66"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fetch-existing-daily-production-report-data-for-the-selected-date-in-containerdailyreportentrypage-when-the-date-changes-pre-populating-the-today-production-and-despatch-values-in-the-table-if-records-already-exist-for-that-date-using-the-usegetalldailyproductionreports-hook-and-filtering-by-selected-date-and-operation-names",
+      "title": "Fetch existing daily production report data for the selected date in ContainerDailyReportEntryPage when the date changes, pre-populating the Today Production and Despatch values in the table if records already exist for that date, using the useGetAllDailyProductionReports hook and filtering by selected date and operation names",
+      "reqIds": [
+        "REQ-67"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-navigation-menu-item-in-the-layout-component-at-frontend-src-components-layout-tsx-linking-to-the-new-container-daily-report-entry-page-at-route-container-daily-report-entry-replacing-or-complementing-the-existing-container-daily-report-link",
+      "title": "Add navigation menu item in the Layout component at frontend/src/components/Layout.tsx linking to the new Container Daily Report Entry page at route /container-daily-report-entry, replacing or complementing the existing /container-daily-report link",
+      "reqIds": [
+        "REQ-68"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-configure-routing-in-frontend-src-app-tsx-to-add-the-new-containerdailyreportentrypage-at-route-container-daily-report-entry-protected-by-authguard-to-ensure-only-authenticated-users-can-access-it",
+      "title": "Configure routing in frontend/src/App.tsx to add the new ContainerDailyReportEntryPage at route /container-daily-report-entry, protected by AuthGuard to ensure only authenticated users can access it",
+      "reqIds": [
+        "REQ-69"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-or-hide-the-dailyproductionreportpage-component-at-frontend-src-pages-dailyproductionreportpage-tsx-from-navigation-and-routing-as-it-is-being-replaced-by-the-new-containerdailyreportentrypage-with-inline-table-based-entry",
+      "title": "Remove or hide the DailyProductionReportPage component at frontend/src/pages/DailyProductionReportPage.tsx from navigation and routing, as it is being replaced by the new ContainerDailyReportEntryPage with inline table-based entry",
+      "reqIds": [
+        "REQ-70"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-role-based-access-control-applies-to-the-new-containerdailyreportentrypage-admin-users-can-edit-today-production-cells-and-save-data-while-viewer-users-can-only-view-the-table-in-read-only-mode-with-all-input-fields-and-save-button-disabled",
+      "title": "Ensure role-based access control applies to the new ContainerDailyReportEntryPage: admin users can edit Today Production cells and save data, while viewer users can only view the table in read-only mode with all input fields and save button disabled",
+      "reqIds": [
+        "REQ-71"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-containerdailyreportentrypage-component-at-frontend-src-pages-containerdailyreportentrypage-tsx-to-display-all-17-operations-using-operation-id-and-operation-name-from-the-operations-table-and-update-the-save-functionality-to-send-operation-id-instead-of-operation-name-when-creating-or-updating-daily-operation-production-records",
+      "title": "Update the ContainerDailyReportEntryPage component at frontend/src/pages/ContainerDailyReportEntryPage.tsx to display all 17 operations using operation_id and operation_name from the Operations table, and update the save functionality to send operation_id instead of operation_name when creating or updating Daily_Operation_Production records",
+      "reqIds": [
+        "REQ-81"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-containerdailyreportpage-component-at-frontend-src-pages-containerdailyreportpage-tsx-to-fetch-and-display-daily-operation-production-records-with-operation-names-from-the-operations-table-and-dynamically-calculated-total-completed-values-returned-by-the-backend",
+      "title": "Update the ContainerDailyReportPage component at frontend/src/pages/ContainerDailyReportPage.tsx to fetch and display Daily_Operation_Production records with operation names from the Operations table and dynamically calculated Total Completed values returned by the backend",
+      "reqIds": [
+        "REQ-82"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-all-production-dashboard-and-history-components-productiondashboardpage-productionhistorypage-dailyproductionreporttable-to-display-operation-names-from-the-operations-table-and-use-dynamically-calculated-total-completed-values-from-the-backend-instead-of-stored-values",
+      "title": "Update all production dashboard and history components (ProductionDashboardPage, ProductionHistoryPage, DailyProductionReportTable) to display operation names from the Operations table and use dynamically calculated Total Completed values from the backend instead of stored values",
+      "reqIds": [
+        "REQ-83"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-dark-industrial-premium-corporate-theme-across-the-entire-application-with-deep-navy-0f172a-as-primary-background-steel-grey-1e293b-as-panel-background-container-red-b91c1c-as-accent-color-electric-blue-2563eb-as-highlight-color-and-industrial-green-16a34a-as-success-color-throughout-all-components",
+      "title": "Apply dark industrial + premium corporate theme across the entire application with Deep Navy (#0F172A) as primary background, Steel Grey (#1E293B) as panel background, Container Red (#B91C1C) as accent color, Electric Blue (#2563EB) as highlight color, and Industrial Green (#16A34A) as success color throughout all components",
+      "reqIds": [
+        "REQ-84"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-subtle-blueprint-grid-texture-as-a-background-pattern-across-the-application-to-enhance-the-industrial-manufacturing-aesthetic",
+      "title": "Add subtle blueprint grid texture as a background pattern across the application to enhance the industrial manufacturing aesthetic",
+      "reqIds": [
+        "REQ-85"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-hero-landing-section-at-the-top-of-the-production-dashboard-page-with-large-bold-heading-container-manufacturing-production-intelligence-system-subheading-real-time-operational-visibility-data-driven-manufacturing-control-animated-production-counter-showing-total-containers-produced-this-month-and-smooth-fade-in-animation-on-page-load",
+      "title": "Create a hero landing section at the top of the Production Dashboard page with large bold heading 'Container Manufacturing Production Intelligence System', subheading 'Real-time operational visibility. Data-driven manufacturing control.', animated production counter showing Total Containers Produced This Month, and smooth fade-in animation on page load",
+      "reqIds": [
+        "REQ-86"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-top-control-bar-component-to-the-dashboard-displaying-factory-name-live-date-clock-auto-updating-and-production-status-indicator",
+      "title": "Add a top control bar component to the dashboard displaying Factory Name, Live Date & Clock (auto-updating), and Production Status Indicator",
+      "reqIds": [
+        "REQ-87"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-redesign-all-kpi-summary-cards-on-the-dashboard-with-animated-number-counters-that-smoothly-transition-when-values-change-displaying-today-production-total-completed-total-despatch-work-in-hand-and-monthly-target-progress-100-containers-with-animated-progress-bar-and-percentage",
+      "title": "Redesign all KPI summary cards on the dashboard with animated number counters that smoothly transition when values change, displaying Today Production, Total Completed, Total Despatch, Work In Hand, and Monthly Target Progress (100 Containers) with animated progress bar and percentage",
+      "reqIds": [
+        "REQ-88"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-upgrade-the-production-report-table-with-professional-industrial-styling-including-sticky-header-that-remains-visible-while-scrolling-compact-row-layout-right-aligned-numeric-columns-hover-highlight-effect-on-rows-and-subtle-glow-effect-on-recently-updated-rows",
+      "title": "Upgrade the production report table with professional industrial styling including sticky header that remains visible while scrolling, compact row layout, right-aligned numeric columns, hover highlight effect on rows, and subtle glow effect on recently updated rows",
+      "reqIds": [
+        "REQ-89"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-enhance-the-monthly-production-trend-line-chart-with-smooth-animated-transitions-when-data-updates-ensuring-the-chart-follows-the-dark-industrial-theme-color-scheme",
+      "title": "Enhance the Monthly Production Trend Line Chart with smooth animated transitions when data updates, ensuring the chart follows the dark industrial theme color scheme",
+      "reqIds": [
+        "REQ-90"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-enhance-the-operation-wise-output-bar-chart-with-smooth-animated-transitions-when-data-updates-ensuring-bars-animate-from-bottom-to-top-and-follow-the-dark-industrial-color-scheme",
+      "title": "Enhance the Operation-wise Output Bar Chart with smooth animated transitions when data updates, ensuring bars animate from bottom to top and follow the dark industrial color scheme",
+      "reqIds": [
+        "REQ-91"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-new-dispatch-vs-production-comparison-chart-component-that-displays-dispatch-quantity-compared-to-production-quantity-over-time-with-smooth-animated-transitions-positioned-alongside-other-charts-on-the-dashboard",
+      "title": "Create a new Dispatch vs Production Comparison Chart component that displays dispatch quantity compared to production quantity over time with smooth animated transitions, positioned alongside other charts on the dashboard",
+      "reqIds": [
+        "REQ-92"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-new-operational-insights-tab-or-section-that-displays-executive-level-metrics-in-a-clean-layout-including-average-daily-output-capacity-utilization-production-efficiency-and-estimated-monthly-output-projection",
+      "title": "Create a new Operational Insights tab or section that displays executive-level metrics in a clean layout including Average Daily Output, Capacity Utilization %, Production Efficiency %, and Estimated Monthly Output Projection",
+      "reqIds": [
+        "REQ-93"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-calculate-and-display-average-daily-output-metric-in-the-operational-insights-section-by-dividing-total-monthly-production-by-the-number-of-elapsed-days-in-the-current-month",
+      "title": "Calculate and display Average Daily Output metric in the Operational Insights section by dividing total monthly production by the number of elapsed days in the current month",
+      "reqIds": [
+        "REQ-94"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-calculate-and-display-capacity-utilization-in-the-operational-insights-section-as-a-percentage-of-actual-production-versus-maximum-theoretical-capacity-with-visual-progress-indicator",
+      "title": "Calculate and display Capacity Utilization % in the Operational Insights section as a percentage of actual production versus maximum theoretical capacity, with visual progress indicator",
+      "reqIds": [
+        "REQ-95"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-calculate-and-display-production-efficiency-in-the-operational-insights-section-measuring-output-quality-and-consistency-with-visual-indicator-showing-performance-level",
+      "title": "Calculate and display Production Efficiency % in the Operational Insights section measuring output quality and consistency, with visual indicator showing performance level",
+      "reqIds": [
+        "REQ-96"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-calculate-and-display-estimated-monthly-output-projection-in-the-operational-insights-section-by-extrapolating-current-production-rate-to-predict-end-of-month-total",
+      "title": "Calculate and display Estimated Monthly Output Projection in the Operational Insights section by extrapolating current production rate to predict end-of-month total",
+      "reqIds": [
+        "REQ-97"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-presentation-mode-toggle-button-that-when-activated-hides-all-admin-controls-edit-buttons-forms-save-buttons-and-displays-a-clean-executive-view-suitable-for-client-and-investor-presentations",
+      "title": "Implement a Presentation Mode toggle button that when activated hides all admin controls (edit buttons, forms, save buttons) and displays a clean executive view suitable for client and investor presentations",
+      "reqIds": [
+        "REQ-98"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-export-as-pdf-functionality-that-allows-users-to-export-production-reports-and-operational-insights-as-a-formatted-pdf-document-suitable-for-sharing-and-archiving",
+      "title": "Add Export as PDF functionality that allows users to export production reports and operational insights as a formatted PDF document suitable for sharing and archiving",
+      "reqIds": [
+        "REQ-99"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-optimize-all-dashboard-components-and-charts-for-fast-loading-performance-with-smooth-transitions-and-animations-ensuring-the-application-feels-responsive-and-professional",
+      "title": "Optimize all dashboard components and charts for fast loading performance with smooth transitions and animations, ensuring the application feels responsive and professional",
+      "reqIds": [
+        "REQ-100"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-entire-application-is-fully-responsive-and-optimized-for-both-desktop-and-tablet-devices-with-appropriate-layout-adjustments-for-different-screen-sizes",
+      "title": "Ensure the entire application is fully responsive and optimized for both desktop and tablet devices with appropriate layout adjustments for different screen sizes",
+      "reqIds": [
+        "REQ-101"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-all-typography-throughout-the-application-to-use-professional-enterprise-grade-fonts-with-clear-hierarchy-suitable-for-a-high-end-manufacturing-control-platform-ensuring-optimal-readability-for-data-heavy-interfaces",
+      "title": "Update all typography throughout the application to use professional enterprise-grade fonts with clear hierarchy suitable for a high-end manufacturing control platform, ensuring optimal readability for data-heavy interfaces",
+      "reqIds": [
+        "REQ-102"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-redesign-the-layout-component-navigation-to-match-the-dark-industrial-premium-corporate-theme-with-improved-visual-hierarchy-and-professional-styling-suitable-for-enterprise-manufacturing-software",
+      "title": "Redesign the Layout component navigation to match the dark industrial premium corporate theme with improved visual hierarchy and professional styling suitable for enterprise manufacturing software",
+      "reqIds": [
+        "REQ-103"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-investigate-and-fix-the-broken-functionality-in-containerdailyreportentrypage-component-at-frontend-src-pages-containerdailyreportentrypage-tsx-ensuring-the-page-loads-without-errors-and-all-interactive-elements-date-selector-despatch-entry-field-inline-editable-production-cells-save-button-function-correctly",
+      "title": "Investigate and fix the broken functionality in ContainerDailyReportEntryPage component at frontend/src/pages/ContainerDailyReportEntryPage.tsx, ensuring the page loads without errors and all interactive elements (date selector, despatch entry field, inline editable production cells, save button) function correctly",
+      "reqIds": [
+        "REQ-104"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-verify-and-fix-the-usegetalloperations-react-query-hook-at-frontend-src-hooks-usegetalloperations-ts-correctly-fetches-operations-data-from-the-backend-and-handles-loading-and-error-states",
+      "title": "Verify and fix the useGetAllOperations React Query hook at frontend/src/hooks/useGetAllOperations.ts correctly fetches operations data from the backend and handles loading and error states",
+      "reqIds": [
+        "REQ-106"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-verify-and-fix-the-usecreatedailyproductionreport-and-useupdatedailyproductionreport-hooks-at-frontend-src-hooks-correctly-send-operation-id-nat-instead-of-operation-name-when-creating-or-updating-daily-operation-production-records",
+      "title": "Verify and fix the useCreateDailyProductionReport and useUpdateDailyProductionReport hooks at frontend/src/hooks/ correctly send operation_id (Nat) instead of operation_name when creating or updating Daily_Operation_Production records",
+      "reqIds": [
+        "REQ-107"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-comprehensive-error-handling-and-user-feedback-to-containerdailyreportentrypage-including-toast-notifications-for-save-success-failure-validation-errors-for-invalid-numeric-inputs-and-loading-indicators-during-data-fetch-and-save-operations",
+      "title": "Add comprehensive error handling and user feedback to ContainerDailyReportEntryPage including toast notifications for save success/failure, validation errors for invalid numeric inputs, and loading indicators during data fetch and save operations",
+      "reqIds": [
+        "REQ-109"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-containerdailyreportentrypage-component-at-frontend-src-pages-containerdailyreportentrypage-tsx-to-always-display-all-17-predefined-operations-in-exact-sequential-order-1-17-in-the-production-entry-table-fetching-operation-data-from-the-getalloperations-backend-function",
+      "title": "Update the ContainerDailyReportEntryPage component at frontend/src/pages/ContainerDailyReportEntryPage.tsx to always display all 17 predefined operations in exact sequential order (1-17) in the production entry table, fetching operation data from the getAllOperations backend function",
+      "reqIds": [
+        "REQ-115"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-all-production-dashboard-and-history-components-productiondashboardpage-productionhistorypage-dailyproductionreporttable-to-display-operations-in-the-predefined-sequential-order-1-17-when-showing-production-data-using-operation-id-for-sorting-and-operation-name-for-display",
+      "title": "Update all production dashboard and history components (ProductionDashboardPage, ProductionHistoryPage, DailyProductionReportTable) to display operations in the predefined sequential order (1-17) when showing production data, using operation_id for sorting and operation_name for display",
+      "reqIds": [
+        "REQ-117"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-comprehensive-validation-in-the-containerdailyreportentrypage-save-functionality-to-ensure-all-production-records-being-saved-reference-valid-operation-ids-1-17-displaying-user-friendly-error-messages-if-validation-fails",
+      "title": "Add comprehensive validation in the ContainerDailyReportEntryPage save functionality to ensure all production records being saved reference valid operation_ids (1-17), displaying user-friendly error messages if validation fails",
+      "reqIds": [
+        "REQ-119"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -612,6 +958,264 @@
       "summary": "Update the backend createDailyProductionReport and updateDailyProductionReport functions in backend/main.mo to automatically calculate and store the cumulative total_completed value by querying all previous daily production reports for the given operation_id, summing their today_production values, and adding the current today_production value",
       "reqIds": [
         "REQ-55"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-42",
+      "summary": "Remove the existing container-type and shift-based production entry form (DailyProductionReportForm) and replace with a fixed structured daily report table",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-43",
+      "summary": "Create a new fixed-structure CONTAINER DAILY REPORT page with title at top, date selector, and a bordered table with 17 fixed rows (one per operation) and columns: Sl No, Operation, Today Production, Total Completed, Despatch, In Hand",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-44",
+      "summary": "Implement inline editable cells for Today Production column allowing admin to directly enter production numbers in the table (Excel-like behavior)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-45",
+      "summary": "Add a single Despatch entry field at the top of the report that auto-applies the entered dispatch quantity to all 17 operation rows when filled",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-46",
+      "summary": "Auto-calculate and display Total Completed for each operation using formula: Previous Total + Today Production (fetched from historical data + current entry)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-47",
+      "summary": "Auto-calculate and display In Hand for each operation using formula: Total Completed - Despatch",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-48",
+      "summary": "Style the daily report interface as a compact, bordered factory production sheet (no modern cards, no separate form, structured report table layout)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-49",
+      "summary": "Create a new Operations data structure in backend/main.mo with fields: operation_id (Nat, primary key) and operation_name (Text), storing exactly 17 predefined operations with sequential IDs 1-17: 1=Boxing, 2=Welding/Finishing, 3=Rear Wall, 4=Front Wall, 5=Side Wall, 6=Roof, 7=Rear Door, 8=Blasting & Primer, 9=Final Paint, 10=Gasket, 11=DLM, 12=Plywood, 13=Floor Screw, 14=Decal, 15=Data Plate, 16=Sikha, 17=Black Paint",
+      "reqIds": [
+        "REQ-72"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-50",
+      "summary": "Create a new Daily_Operation_Production data structure in backend/main.mo with fields: id (Nat, primary key), date (Text), operation_id (Nat, foreign key reference to Operations), today_production (Nat), and despatch (Nat), removing the total_completed field as it will be calculated dynamically",
+      "reqIds": [
+        "REQ-73"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-51",
+      "summary": "Create a backend migration function in backend/migration.mo that migrates all existing DailyProductionReport records to the new Daily_Operation_Production structure by mapping operation_name strings to operation_id integers (1-17), preserving date, today_production, and despatch values, and discarding the stored total_completed values",
+      "reqIds": [
+        "REQ-74"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-52",
+      "summary": "Update the createDailyProductionReport backend function in backend/main.mo to accept operation_id (Nat) instead of operation_name (Text), validating that the operation_id is between 1-17, and store records in the new Daily_Operation_Production structure without storing total_completed",
+      "reqIds": [
+        "REQ-75"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-53",
+      "summary": "Update the updateDailyProductionReport backend function in backend/main.mo to work with operation_id instead of operation_name, allowing updates to date, today_production, and despatch fields only, preventing operation_id changes",
+      "reqIds": [
+        "REQ-76"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-54",
+      "summary": "Create a new backend query function getAllOperations in backend/main.mo that returns all 17 Operations records with their operation_id and operation_name values in sequential order",
+      "reqIds": [
+        "REQ-77"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-55",
+      "summary": "Create a backend query function calculateTotalCompleted in backend/main.mo that accepts operation_id (Nat) and date (Text) parameters, queries all Daily_Operation_Production records for that operation_id where the record date is less than or equal to the specified date, sums all today_production values, and returns the cumulative total",
+      "reqIds": [
+        "REQ-78"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-56",
+      "summary": "Update the getAllDailyProductionReports backend function in backend/main.mo to return Daily_Operation_Production records enriched with operation_name (looked up from Operations table) and dynamically calculated total_completed values (using calculateTotalCompleted function) for each record",
+      "reqIds": [
+        "REQ-79"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-57",
+      "summary": "Update the DailyProductionReportForm component at frontend/src/components/DailyProductionReportForm.tsx to use operation_id (integer 1-17) instead of operation_name when creating or updating records, fetching operation names from the getAllOperations backend function for dropdown display",
+      "reqIds": [
+        "REQ-80"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-58",
+      "summary": "Redesign entire application theme to dark industrial + premium corporate style with Deep Navy (#0F172A) primary background, Steel Grey (#1E293B) panel background, Container Red (#B91C1C) accent, Electric Blue (#2563EB) highlight, Industrial Green (#16A34A) success, and subtle blueprint grid texture",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-59",
+      "summary": "Create Hero Landing Section with large heading 'Container Manufacturing Production Intelligence System', subheading 'Real-time operational visibility. Data-driven manufacturing control.', animated production counter showing Total Containers Produced This Month, and smooth fade-in animation",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-60",
+      "summary": "Add Top Control Bar to dashboard with Factory Name, Live Date & Clock, and Production Status Indicator",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-61",
+      "summary": "Redesign KPI summary cards with animated number counters, showing Today Production, Total Completed, Total Despatch, Work In Hand, and Monthly Target Progress (100 Containers) with progress bar and percentage animation",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-62",
+      "summary": "Upgrade Production Report Table with professional industrial styling: sticky header, compact rows, right-aligned numeric columns, hover highlight, and subtle glow effect on updated rows",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-63",
+      "summary": "Add Monthly Production Trend Line Chart with smooth animated transitions",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-64",
+      "summary": "Add Operation-wise Output Bar Chart with smooth animated transitions",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-65",
+      "summary": "Add Dispatch vs Production Comparison Chart with smooth animated transitions",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-66",
+      "summary": "Create Operational Insights tab displaying Average Daily Output, Capacity Utilization %, Production Efficiency %, and Estimated Monthly Output Projection in clean executive style layout",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-67",
+      "summary": "Add Presentation Mode button that hides admin controls and displays clean executive view for client/investor presentations",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-68",
+      "summary": "Add Export as PDF option for production reports and insights",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-69",
+      "summary": "Optimize application for fast loading, smooth transitions, and responsive layout for desktop and tablet devices",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-71",
+      "summary": "Verify and fix the getAllOperations backend query function in backend/main.mo returns all 17 operations with correct operation_id (1-17) and operation_name values in sequential order",
+      "reqIds": [
+        "REQ-105"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-74",
+      "summary": "Verify and fix the calculateTotalCompleted backend function in backend/main.mo correctly queries all Daily_Operation_Production records for the specified operation_id where record date is less than or equal to the specified date, sums all today_production values, and returns the cumulative total",
+      "reqIds": [
+        "REQ-108"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-75",
+      "summary": "Create a stable Operations data structure in backend/main.mo with fields: operation_id (Nat, primary key) and operation_name (Text), pre-populated with exactly 17 fixed operations in sequential order: 1=Boxing, 2=Welding/Finishing, 3=Rear Wall, 4=Front Wall, 5=Side Wall, 6=Roof, 7=Rear Door, 8=Blasting & Primer, 9=Final Paint, 10=Gasket, 11=DLM, 12=Plywood, 13=Floor Screw, 14=Decal, 15=Data Plate, 16=Sikha, 17=Black Paint",
+      "reqIds": [
+        "REQ-110"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-76",
+      "summary": "Create a backend query function getAllOperations in backend/main.mo that returns all 17 Operations records with their operation_id and operation_name values in sequential order (1-17)",
+      "reqIds": [
+        "REQ-111"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-77",
+      "summary": "Remove all backend functions that allow adding, deleting, or modifying operation entries (if any exist), ensuring operations remain permanently locked to the predefined 17",
+      "reqIds": [
+        "REQ-112"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-78",
+      "summary": "Update the createDailyProductionReport backend function in backend/main.mo to validate that the operation_id parameter is between 1-17 inclusive, returning an error if the operation_id is out of range or does not match an existing operation",
+      "reqIds": [
+        "REQ-113"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-79",
+      "summary": "Update the updateDailyProductionReport backend function in backend/main.mo to prevent any changes to the operation_id field, rejecting update attempts that try to change the operation assignment with an appropriate error message",
+      "reqIds": [
+        "REQ-114"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-81",
+      "summary": "Update the ContainerDailyReportPage component at frontend/src/pages/ContainerDailyReportPage.tsx to always display all 17 predefined operations in exact sequential order (1-17) in the daily report view, showing zero or empty values for operations with no production data for the selected date",
+      "reqIds": [
+        "REQ-116"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-83",
+      "summary": "Ensure the useGetAllOperations React Query hook at frontend/src/hooks/useGetAllOperations.ts correctly fetches all 17 operations from the backend, with proper error handling and loading states, and returns operations in sequential order by operation_id",
+      "reqIds": [
+        "REQ-118"
       ],
       "status": "pending"
     }

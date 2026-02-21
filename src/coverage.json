@@ -1,82 +1,124 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-21T10:28:47.467Z",
+  "generatedAt": "2026-02-21T16:30:58.618Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 5,
-    "implemented": 4,
+    "total": 10,
+    "implemented": 3,
     "items": [
       {
-        "id": "REQ-54",
-        "summary": "Update the DailyProductionReportForm component at frontend/src/components/DailyProductionReportForm.tsx to change the 'Total Completed' field from a manual input to a read-only calculated field that automatically computes the cumulative running total by fetching all previous production records for the selected operation from the database and adding today's production value to the sum",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/DailyProductionReportForm.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/DailyProductionReportForm.tsx"
-        ]
-      },
-      {
-        "id": "REQ-55",
-        "summary": "Update the backend createDailyProductionReport and updateDailyProductionReport functions in backend/main.mo to automatically calculate and store the cumulative total_completed value by querying all previous daily production reports for the given operation_id, summing their today_production values, and adding the current today_production value",
+        "id": "REQ-110",
+        "summary": "Create a stable Operations data structure in backend/main.mo with fields: operation_id (Nat, primary key) and operation_name (Text), pre-populated with exactly 17 fixed operations in sequential order: 1=Boxing, 2=Welding/Finishing, 3=Rear Wall, 4=Front Wall, 5=Side Wall, 6=Roof, 7=Rear Door, 8=Blasting & Primer, 9=Final Paint, 10=Gasket, 11=DLM, 12=Plywood, 13=Floor Screw, 14=Decal, 15=Data Plate, 16=Sikha, 17=Black Paint",
         "status": "unknown",
         "plannedFiles": [],
         "matchedFiles": []
       },
       {
-        "id": "REQ-56",
-        "summary": "Update the DailyProductionReportForm component to automatically calculate and display the 'In Hand' field as a read-only value computed as Total Completed minus Despatch (In Hand = Total Completed - Despatch), recalculating whenever either Total Completed or Despatch values change",
+        "id": "REQ-111",
+        "summary": "Create a backend query function getAllOperations in backend/main.mo that returns all 17 Operations records with their operation_id and operation_name values in sequential order (1-17)",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-112",
+        "summary": "Remove all backend functions that allow adding, deleting, or modifying operation entries (if any exist), ensuring operations remain permanently locked to the predefined 17",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-113",
+        "summary": "Update the createDailyProductionReport backend function in backend/main.mo to validate that the operation_id parameter is between 1-17 inclusive, returning an error if the operation_id is out of range or does not match an existing operation",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-114",
+        "summary": "Update the updateDailyProductionReport backend function in backend/main.mo to prevent any changes to the operation_id field, rejecting update attempts that try to change the operation assignment with an appropriate error message",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-115",
+        "summary": "Update the ContainerDailyReportEntryPage component at frontend/src/pages/ContainerDailyReportEntryPage.tsx to always display all 17 predefined operations in exact sequential order (1-17) in the production entry table, fetching operation data from the getAllOperations backend function",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/DailyProductionReportForm.tsx"
+          "frontend/src/pages/ContainerDailyReportEntryPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/DailyProductionReportForm.tsx"
+          "frontend/src/pages/ContainerDailyReportEntryPage.tsx"
         ]
       },
       {
-        "id": "REQ-57",
-        "summary": "Add an optional 'Batch Dispatch Entry' input field at the top of the DailyProductionReportForm component that, when filled with a dispatch quantity value, automatically populates the Despatch field for all 17 operations with the same value, allowing administrators to enter a single container dispatch count that applies to all operations simultaneously",
+        "id": "REQ-116",
+        "summary": "Update the ContainerDailyReportPage component at frontend/src/pages/ContainerDailyReportPage.tsx to always display all 17 predefined operations in exact sequential order (1-17) in the daily report view, showing zero or empty values for operations with no production data for the selected date",
+        "status": "missing",
+        "plannedFiles": [
+          "frontend/src/pages/ContainerDailyReportPage.tsx"
+        ],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-117",
+        "summary": "Update all production dashboard and history components (ProductionDashboardPage, ProductionHistoryPage, DailyProductionReportTable) to display operations in the predefined sequential order (1-17) when showing production data, using operation_id for sorting and operation_name for display",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/DailyProductionReportForm.tsx"
+          "frontend/src/pages/ProductionDashboardPage.tsx",
+          "frontend/src/pages/ProductionHistoryPage.tsx",
+          "frontend/src/components/ProductionDashboardTable.tsx",
+          "frontend/src/components/DailyProductionReportTable.tsx",
+          "frontend/src/components/OperationComparisonChart.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/DailyProductionReportForm.tsx"
+          "frontend/src/components/ProductionDashboardTable.tsx",
+          "frontend/src/components/DailyProductionReportTable.tsx",
+          "frontend/src/components/OperationComparisonChart.tsx"
         ]
       },
       {
-        "id": "REQ-58",
-        "summary": "Update the ContainerDailyReportPage component at frontend/src/pages/ContainerDailyReportPage.tsx to display calculated values for each operation row using the formula: In Hand = Total Completed - Despatch, ensuring all numeric columns show accurate computed values based on database records",
+        "id": "REQ-118",
+        "summary": "Ensure the useGetAllOperations React Query hook at frontend/src/hooks/useGetAllOperations.ts correctly fetches all 17 operations from the backend, with proper error handling and loading states, and returns operations in sequential order by operation_id",
+        "status": "missing",
+        "plannedFiles": [
+          "frontend/src/hooks/useGetAllOperations.ts"
+        ],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-119",
+        "summary": "Add comprehensive validation in the ContainerDailyReportEntryPage save functionality to ensure all production records being saved reference valid operation_ids (1-17), displaying user-friendly error messages if validation fails",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/ContainerDailyReportPage.tsx"
+          "frontend/src/pages/ContainerDailyReportEntryPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/ContainerDailyReportPage.tsx"
+          "frontend/src/pages/ContainerDailyReportEntryPage.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
     "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
     "frontend/src/backend.d.ts",
     "frontend/src/backend.ts",
-    "frontend/src/components/DailyProductionReportForm.tsx",
+    "frontend/src/components/DailyProductionReportTable.tsx",
+    "frontend/src/components/OperationComparisonChart.tsx",
+    "frontend/src/components/ProductionDashboardTable.tsx",
     "frontend/src/declarations/backend.did.d.ts",
     "frontend/src/declarations/backend.did.js",
-    "frontend/src/hooks/useCreateDailyProductionReport.ts",
-    "frontend/src/hooks/useUpdateDailyProductionReport.ts",
-    "frontend/src/pages/ContainerDailyReportPage.tsx",
+    "frontend/src/pages/ContainerDailyReportEntryPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

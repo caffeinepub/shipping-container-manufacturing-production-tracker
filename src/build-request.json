@@ -1,117 +1,198 @@
 {
   "kind": "build_request",
-  "title": "Implement dynamic cumulative Total Completed tracking and optional batch dispatch entry",
-  "priority": "normal",
+  "title": "Implement fixed 17-operation system with locked operation list",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-54",
-      "text": "Update the DailyProductionReportForm component at frontend/src/components/DailyProductionReportForm.tsx to change the 'Total Completed' field from a manual input to a read-only calculated field that automatically computes the cumulative running total by fetching all previous production records for the selected operation from the database and adding today's production value to the sum",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-latest"
-        ],
-        "quotes": [
-          "Total Completed = cumulative running total from database"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Total Completed field is displayed as read-only in the form",
-        "Total Completed value is automatically calculated as: (sum of all previous today_production values for this operation) + (current today_production value)",
-        "The calculation fetches data from the backend database for the selected operation",
-        "Total Completed updates automatically when today_production value changes"
-      ]
-    },
-    {
-      "id": "REQ-55",
-      "text": "Update the backend createDailyProductionReport and updateDailyProductionReport functions in backend/main.mo to automatically calculate and store the cumulative total_completed value by querying all previous daily production reports for the given operation_id, summing their today_production values, and adding the current today_production value",
+      "id": "REQ-110",
+      "text": "Create a stable Operations data structure in backend/main.mo with fields: operation_id (Nat, primary key) and operation_name (Text), pre-populated with exactly 17 fixed operations in sequential order: 1=Boxing, 2=Welding/Finishing, 3=Rear Wall, 4=Front Wall, 5=Side Wall, 6=Roof, 7=Rear Door, 8=Blasting & Primer, 9=Final Paint, 10=Gasket, 11=DLM, 12=Plywood, 13=Floor Screw, 14=Decal, 15=Data Plate, 16=Sikha, 17=Black Paint",
       "target": "backend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-user-latest"
         ],
         "quotes": [
-          "Total Completed = cumulative running total from database"
+          "Predefine and lock the following 17 operations as fixed rows: 1 Boxing 2 Welding/Finishing 3 Rear Wall 4 Front Wall 5 Side Wall 6 Roof 7 Rear Door 8 Blasting & Primer 9 Final Paint 10 Gasket 11 DLM 12 Plywood 13 Floor Screw 14 Decal 15 Data Plate 16 Sikha 17 Black Paint"
         ]
       },
       "acceptanceCriteria": [
-        "Backend calculates total_completed automatically before saving the record",
-        "Calculation queries all existing records with matching operation_id",
-        "Formula: total_completed = sum(previous_records.today_production) + current_today_production",
-        "User cannot manually override the total_completed value"
+        "Operations data structure exists in backend stable variables",
+        "Exactly 17 operations are pre-populated with sequential IDs 1-17",
+        "Operation names match the exact list provided by user",
+        "Data persists across canister upgrades"
       ]
     },
     {
-      "id": "REQ-56",
-      "text": "Update the DailyProductionReportForm component to automatically calculate and display the 'In Hand' field as a read-only value computed as Total Completed minus Despatch (In Hand = Total Completed - Despatch), recalculating whenever either Total Completed or Despatch values change",
-      "target": "frontend",
+      "id": "REQ-111",
+      "text": "Create a backend query function getAllOperations in backend/main.mo that returns all 17 Operations records with their operation_id and operation_name values in sequential order (1-17)",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-latest"
-        ],
-        "quotes": [
-          "In Hand = Total Completed - Despatch"
+          "msg-user-latest"
         ]
       },
       "acceptanceCriteria": [
-        "In Hand field is displayed as read-only",
-        "In Hand is calculated as: Total Completed - Despatch",
-        "Value updates automatically when Total Completed or Despatch changes",
-        "Display shows 0 or positive values only"
+        "Function returns all 17 operations in order",
+        "Each operation includes operation_id and operation_name",
+        "Function is callable by both admin and viewer roles"
       ]
     },
     {
-      "id": "REQ-57",
-      "text": "Add an optional 'Batch Dispatch Entry' input field at the top of the DailyProductionReportForm component that, when filled with a dispatch quantity value, automatically populates the Despatch field for all 17 operations with the same value, allowing administrators to enter a single container dispatch count that applies to all operations simultaneously",
-      "target": "frontend",
+      "id": "REQ-112",
+      "text": "Remove all backend functions that allow adding, deleting, or modifying operation entries (if any exist), ensuring operations remain permanently locked to the predefined 17",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-user-latest"
         ],
         "quotes": [
-          "If Despatch is same for all rows (container dispatch count), allow a single dispatch entry at top and auto-apply to all rows"
+          "Admin cannot add or delete operations"
         ]
       },
       "acceptanceCriteria": [
-        "Batch Dispatch Entry field appears at the top of the form above individual operation entries",
-        "Field is labeled clearly as 'Apply Same Dispatch to All Operations' or similar",
-        "When a value is entered, all 17 operation Despatch fields are automatically filled with that value",
-        "Field is optional and can be left empty for individual dispatch entry",
-        "Clearing the batch field does not clear individual Despatch values already entered"
+        "No backend function exists to create new operations",
+        "No backend function exists to delete operations",
+        "No backend function exists to modify operation names or IDs",
+        "Only the 17 predefined operations are accessible"
       ]
     },
     {
-      "id": "REQ-58",
-      "text": "Update the ContainerDailyReportPage component at frontend/src/pages/ContainerDailyReportPage.tsx to display calculated values for each operation row using the formula: In Hand = Total Completed - Despatch, ensuring all numeric columns show accurate computed values based on database records",
-      "target": "frontend",
+      "id": "REQ-113",
+      "text": "Update the createDailyProductionReport backend function in backend/main.mo to validate that the operation_id parameter is between 1-17 inclusive, returning an error if the operation_id is out of range or does not match an existing operation",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-user-latest"
         ],
         "quotes": [
-          "In Hand = Total Completed - Despatch"
+          "Admin can only update numeric production values"
         ]
       },
       "acceptanceCriteria": [
-        "In Hand column displays calculated values (Total Completed - Despatch) for each operation",
-        "Calculation is performed on the frontend after fetching data",
-        "All 17 operations show correct calculated In Hand values",
-        "Zero or empty records display 0 for In Hand calculation"
+        "Function accepts operation_id (Nat) parameter",
+        "Function validates operation_id is between 1-17",
+        "Function returns error for invalid operation_id",
+        "Function creates production record only for valid operation_id"
+      ]
+    },
+    {
+      "id": "REQ-114",
+      "text": "Update the updateDailyProductionReport backend function in backend/main.mo to prevent any changes to the operation_id field, rejecting update attempts that try to change the operation assignment with an appropriate error message",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-user-latest"
+        ],
+        "quotes": [
+          "Admin can only update numeric production values"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Function does not allow operation_id field updates",
+        "Function returns error if operation_id change is attempted",
+        "Function allows updates to today_production, despatch, and date fields only"
+      ]
+    },
+    {
+      "id": "REQ-115",
+      "text": "Update the ContainerDailyReportEntryPage component at frontend/src/pages/ContainerDailyReportEntryPage.tsx to always display all 17 predefined operations in exact sequential order (1-17) in the production entry table, fetching operation data from the getAllOperations backend function",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-user-latest"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Table displays exactly 17 rows in sequential order",
+        "Each row shows the correct operation_id (1-17) and operation_name",
+        "Operations are displayed in the exact order: Boxing, Welding/Finishing, Rear Wall, Front Wall, Side Wall, Roof, Rear Door, Blasting & Primer, Final Paint, Gasket, DLM, Plywood, Floor Screw, Decal, Data Plate, Sikha, Black Paint",
+        "All 17 rows are visible even if no production data exists for some operations"
+      ]
+    },
+    {
+      "id": "REQ-116",
+      "text": "Update the ContainerDailyReportPage component at frontend/src/pages/ContainerDailyReportPage.tsx to always display all 17 predefined operations in exact sequential order (1-17) in the daily report view, showing zero or empty values for operations with no production data for the selected date",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-user-latest"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Report table displays exactly 17 rows in sequential order",
+        "All operations from 1-17 are visible regardless of data availability",
+        "Operations without data show zero or empty values",
+        "Operations are displayed in the predefined order"
+      ]
+    },
+    {
+      "id": "REQ-117",
+      "text": "Update all production dashboard and history components (ProductionDashboardPage, ProductionHistoryPage, DailyProductionReportTable) to display operations in the predefined sequential order (1-17) when showing production data, using operation_id for sorting and operation_name for display",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-user-latest"
+        ]
+      },
+      "acceptanceCriteria": [
+        "All components display operations in sequential order 1-17",
+        "Operation names are fetched from the Operations table via backend",
+        "No custom operation names or out-of-order operations appear",
+        "Sorting by operation maintains the 1-17 sequence"
+      ]
+    },
+    {
+      "id": "REQ-118",
+      "text": "Ensure the useGetAllOperations React Query hook at frontend/src/hooks/useGetAllOperations.ts correctly fetches all 17 operations from the backend, with proper error handling and loading states, and returns operations in sequential order by operation_id",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-user-latest"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Hook fetches data from getAllOperations backend function",
+        "Hook returns exactly 17 operations in sequential order",
+        "Hook handles loading state properly",
+        "Hook handles error state properly",
+        "Operations data is cached appropriately"
+      ]
+    },
+    {
+      "id": "REQ-119",
+      "text": "Add comprehensive validation in the ContainerDailyReportEntryPage save functionality to ensure all production records being saved reference valid operation_ids (1-17), displaying user-friendly error messages if validation fails",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-user-latest"
+        ],
+        "quotes": [
+          "Admin can only update numeric production values"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Save function validates all operation_ids are between 1-17",
+        "Save function shows error toast for invalid operation_ids",
+        "Save function prevents submission of invalid data",
+        "User receives clear feedback on validation errors"
       ]
     }
   ],
   "constraints": [
-    "Maintain the existing single-actor backend architecture in backend/main.mo",
-    "Do not modify the 17 predefined operations list or their order",
-    "Total Completed must always be a calculated cumulative value, never manually entered",
-    "In Hand must always be calculated as Total Completed minus Despatch",
-    "Batch dispatch entry is optional and must not interfere with individual operation dispatch entry"
+    "Operations list must remain exactly 17 entries with IDs 1-17",
+    "No user interface or backend function shall allow adding new operations",
+    "No user interface or backend function shall allow deleting existing operations",
+    "No user interface or backend function shall allow changing operation names or operation_id values",
+    "Backend Operations data structure must be stored in stable variables for persistence",
+    "All production records must reference operation_id (Nat) between 1-17",
+    "Frontend must always display operations in sequential order 1-17"
   ],
   "nonGoals": [
-    "Changing the operation names or order",
-    "Adding backend support for batch dispatch as a separate entity",
-    "Modifying the database schema to store In Hand separately",
-    "Creating new dispatch tracking mechanisms outside daily production reports"
+    "Allowing custom operation names",
+    "Allowing dynamic addition or removal of operations",
+    "Allowing operation reordering by users",
+    "Changing the number of operations from 17",
+    "Modifying operation names after initial setup"
   ],
   "imageRequirements": {
     "required": [],

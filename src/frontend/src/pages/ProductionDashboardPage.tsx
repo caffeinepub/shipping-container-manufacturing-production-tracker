@@ -1,56 +1,57 @@
 import { useMemo } from 'react';
-import { Package, Truck, Warehouse, Calendar, Target, Percent, TrendingUp } from 'lucide-react';
+import { useGetAllDailyProductionReports } from '../hooks/useGetAllDailyProductionReports';
+import { useMonthlyProductionMetrics } from '../hooks/useMonthlyProductionMetrics';
 import SummaryCard from '../components/SummaryCard';
 import ProductionDashboardTable from '../components/ProductionDashboardTable';
 import ProductionTrendChart from '../components/ProductionTrendChart';
 import OperationComparisonChart from '../components/OperationComparisonChart';
-import { useGetAllDailyProductionReports } from '../hooks/useGetAllDailyProductionReports';
-import { useMonthlyProductionMetrics } from '../hooks/useMonthlyProductionMetrics';
+import DispatchVsProductionChart from '../components/DispatchVsProductionChart';
+import OperationalInsightsSection from '../components/OperationalInsightsSection';
+import HeroSection from '../components/HeroSection';
+import ControlBar from '../components/ControlBar';
+import MonthlyTargetCard from '../components/MonthlyTargetCard';
+import PresentationModeToggle from '../components/PresentationModeToggle';
+import ExportPDFButton from '../components/ExportPDFButton';
+import { PresentationModeProvider, usePresentationMode } from '../contexts/PresentationModeContext';
+import { Loader2, Package, TrendingUp, Truck, Box } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-export default function ProductionDashboardPage() {
-  const { data: reports = [], isLoading, error } = useGetAllDailyProductionReports();
-  const { metrics: monthlyMetrics, isLoading: monthlyLoading } = useMonthlyProductionMetrics();
+function ProductionDashboardContent() {
+  const { data: allReports = [], isLoading } = useGetAllDailyProductionReports();
+  const { data: monthlyMetrics, isLoading: metricsLoading } = useMonthlyProductionMetrics();
+  const { isPresentationMode } = usePresentationMode();
 
-  // Calculate summary totals
-  const summaryTotals = useMemo(() => {
-    const totalProducedToday = reports.reduce((sum, report) => sum + Number(report.todayProduction), 0);
-    const totalDespatched = reports.reduce((sum, report) => sum + Number(report.despatched), 0);
-    const totalInHand = reports.reduce((sum, report) => sum + Number(report.inHand), 0);
+  const today = new Date().toISOString().split('T')[0];
+
+  const todayReports = useMemo(() => {
+    return allReports.filter((report) => report.date === today);
+  }, [allReports, today]);
+
+  const todaySummary = useMemo(() => {
+    const totalProduction = todayReports.reduce((sum, report) => sum + Number(report.todayProduction), 0);
+    const totalDespatched = todayReports.reduce((sum, report) => sum + Number(report.despatch), 0);
+    const totalCompleted = todayReports.reduce((sum, report) => sum + Number(report.totalCompleted), 0);
+    const totalInHand = todayReports.reduce((sum, report) => {
+      const inHand = Math.max(0, Number(report.totalCompleted) - Number(report.despatch));
+      return sum + inHand;
+    }, 0);
 
     return {
-      totalProducedToday,
+      totalProduction,
       totalDespatched,
+      totalCompleted,
       totalInHand,
     };
-  }, [reports]);
+  }, [todayReports]);
 
-  if (isLoading || monthlyLoading) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Live Production Dashboard</h1>
-          <p className="text-muted-foreground mt-2">Real-time production monitoring and status</p>
-        </div>
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p className="text-muted-foreground mt-4">Loading dashboard data...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const isOperational = todayReports.length > 0 && todaySummary.totalProduction > 0;
 
-  if (error) {
+  if (isLoading || metricsLoading) {
     return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Live Production Dashboard</h1>
-          <p className="text-muted-foreground mt-2">Real-time production monitoring and status</p>
-        </div>
-        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-6 text-center">
-          <p className="text-destructive font-medium">Failed to load dashboard data</p>
-          <p className="text-muted-foreground text-sm mt-2">{error.message}</p>
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
+          <p className="text-muted-foreground">Loading production dashboard...</p>
         </div>
       </div>
     );
@@ -58,79 +59,106 @@ export default function ProductionDashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Live Production Dashboard</h1>
-        <p className="text-muted-foreground mt-2">Real-time production monitoring and status • Auto-refreshes every 30 seconds</p>
+      {/* Hero Section */}
+      <HeroSection monthlyTotal={monthlyMetrics?.totalProduced || 0} />
+
+      {/* Control Bar */}
+      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+        <ControlBar isOperational={isOperational} />
+        
+        {!isPresentationMode && (
+          <div className="flex gap-2">
+            <ExportPDFButton />
+            <PresentationModeToggle />
+          </div>
+        )}
       </div>
 
-      {/* Monthly Production Summary */}
-      <div>
-        <h2 className="text-xl font-semibold text-foreground mb-4">Monthly Production Summary</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <SummaryCard
-            title="Total Containers Produced This Month"
-            value={monthlyMetrics.totalProducedThisMonth}
-            icon={Calendar}
-            description="Cumulative production for current month"
-          />
-          <SummaryCard
-            title="Remaining to Achieve Target"
-            value={monthlyMetrics.remainingToTarget}
-            icon={Target}
-            description="Target: 100 containers per month"
-          />
-          <SummaryCard
-            title="Production Completion Percentage"
-            value={`${monthlyMetrics.completionPercentage.toFixed(1)}%`}
-            icon={Percent}
-            description="Progress towards monthly target"
-          />
-          <SummaryCard
-            title="Daily Average Production"
-            value={monthlyMetrics.dailyAverage.toFixed(1)}
-            icon={TrendingUp}
-            description="Average containers per day this month"
-          />
-        </div>
-      </div>
+      {/* Tabs for Dashboard and Insights */}
+      <Tabs defaultValue="dashboard" className="space-y-6">
+        <TabsList className="bg-card border border-border">
+          <TabsTrigger value="dashboard" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            Production Dashboard
+          </TabsTrigger>
+          <TabsTrigger value="insights" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            Operational Insights
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Daily Summary Cards */}
-      <div>
-        <h2 className="text-xl font-semibold text-foreground mb-4">Today's Summary</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <SummaryCard
-            title="Total Container Produced Today"
-            value={summaryTotals.totalProducedToday}
-            icon={Package}
-            description="Sum of today's production across all operations"
-          />
-          <SummaryCard
-            title="Total Container Despatched"
-            value={summaryTotals.totalDespatched}
-            icon={Truck}
-            description="Total containers dispatched"
-          />
-          <SummaryCard
-            title="Total Work in Hand"
-            value={summaryTotals.totalInHand}
-            icon={Warehouse}
-            description="Current inventory across all operations"
-          />
-        </div>
-      </div>
+        <TabsContent value="dashboard" className="space-y-6">
+          {/* KPI Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <SummaryCard
+              title="Today Production"
+              value={todaySummary.totalProduction.toString()}
+              icon={Package}
+              description="Containers produced today"
+              variant="primary"
+            />
+            <SummaryCard
+              title="Total Completed"
+              value={todaySummary.totalCompleted.toString()}
+              icon={TrendingUp}
+              description="Cumulative production"
+            />
+            <SummaryCard
+              title="Total Despatch"
+              value={todaySummary.totalDespatched.toString()}
+              icon={Truck}
+              description="Containers dispatched"
+            />
+            <SummaryCard
+              title="Work In Hand"
+              value={todaySummary.totalInHand.toString()}
+              icon={Box}
+              description="Current inventory"
+              variant="success"
+            />
+            <MonthlyTargetCard
+              current={monthlyMetrics?.totalProduced || 0}
+              target={100}
+            />
+          </div>
 
-      {/* Production Charts */}
-      <div>
-        <h2 className="text-xl font-semibold text-foreground mb-4">Production Analytics</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <ProductionTrendChart reports={reports} />
-          <OperationComparisonChart reports={reports} />
-        </div>
-      </div>
+          {/* Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ProductionTrendChart reports={allReports} />
+            <OperationComparisonChart reports={allReports} />
+          </div>
 
-      {/* Production Table */}
-      <ProductionDashboardTable reports={reports} />
+          <div className="grid grid-cols-1 gap-6">
+            <DispatchVsProductionChart reports={allReports} />
+          </div>
+
+          {/* Production Table */}
+          <ProductionDashboardTable reports={todayReports} />
+        </TabsContent>
+
+        <TabsContent value="insights" className="space-y-6">
+          {monthlyMetrics && (
+            <OperationalInsightsSection
+              averageDailyOutput={monthlyMetrics.dailyAverage}
+              capacityUtilization={monthlyMetrics.capacityUtilization}
+              productionEfficiency={monthlyMetrics.productionEfficiency}
+              estimatedMonthlyOutput={monthlyMetrics.estimatedMonthlyOutput}
+            />
+          )}
+
+          {/* Charts for Insights */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ProductionTrendChart reports={allReports} />
+            <DispatchVsProductionChart reports={allReports} />
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
+  );
+}
+
+export default function ProductionDashboardPage() {
+  return (
+    <PresentationModeProvider>
+      <ProductionDashboardContent />
+    </PresentationModeProvider>
   );
 }

@@ -1,74 +1,111 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Implement dynamic cumulative Total Completed tracking and optional batch dispatch entry",
+  "title": "Implement fixed 17-operation system with locked operation list - Frontend",
   "requirements": [
     {
-      "id": "REQ-54",
-      "summary": "Update DailyProductionReportForm to make Total Completed a read-only calculated field that fetches cumulative totals from the backend",
+      "id": "REQ-115",
+      "summary": "Update ContainerDailyReportEntryPage to display all 17 predefined operations in exact sequential order (1-17), fetching data from getAllOperations backend function",
       "acceptanceCriteria": [
-        "Total Completed field is displayed as read-only in the form",
-        "Total Completed value is automatically calculated as: (sum of all previous today_production values for this operation) + (current today_production value)",
-        "The calculation fetches data from the backend database for the selected operation",
-        "Total Completed updates automatically when today_production value changes"
+        "Table displays exactly 17 rows in sequential order",
+        "Each row shows the correct operation_id (1-17) and operation_name",
+        "Operations are displayed in the exact order: Boxing, Welding/Finishing, Rear Wall, Front Wall, Side Wall, Roof, Rear Door, Blasting & Primer, Final Paint, Gasket, DLM, Plywood, Floor Screw, Decal, Data Plate, Sikha, Black Paint",
+        "All 17 rows are visible even if no production data exists for some operations"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/DailyProductionReportForm.tsx",
+          "path": "frontend/src/pages/ContainerDailyReportEntryPage.tsx",
           "operation": "modify",
-          "description": "Convert the Total Completed field from an editable input to a read-only display field. Add logic to fetch all daily production reports for the selected operation using the useGetAllDailyProductionReports hook, filter by operation ID, sum their todayProduction values, and add the current today_production input value to calculate the cumulative total. Update the calculation whenever the selected operation or today_production value changes. Remove any state management for totalCompleted input and replace with computed value display."
+          "description": "Modify the page to fetch all 17 operations using useGetAllOperations hook and display them in sequential order (1-17) in the production entry table. Ensure all 17 operations are always visible as rows, even when no production data exists for some operations. The table should display operation_id and operation_name for each row, maintaining the predefined order from the backend."
         }
       ]
     },
     {
-      "id": "REQ-56",
-      "summary": "Update DailyProductionReportForm to automatically calculate and display In Hand as a read-only computed value",
+      "id": "REQ-116",
+      "summary": "Update ContainerDailyReportPage to display all 17 predefined operations in exact sequential order (1-17), showing zero or empty values for operations with no production data",
       "acceptanceCriteria": [
-        "In Hand field is displayed as read-only",
-        "In Hand is calculated as: Total Completed - Despatch",
-        "Value updates automatically when Total Completed or Despatch changes",
-        "Display shows 0 or positive values only"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/DailyProductionReportForm.tsx",
-          "operation": "modify",
-          "description": "Convert the In Hand field from an editable input to a read-only computed field. Implement automatic calculation using the formula: In Hand = Total Completed - Despatch. Ensure the calculation updates reactively whenever either Total Completed (from REQ-54 calculation) or the Despatch input value changes. Display the result as a formatted number with minimum value of 0 (no negative values). Remove any manual input handling for the inHand field and replace with computed value display."
-        }
-      ]
-    },
-    {
-      "id": "REQ-57",
-      "summary": "Add optional Batch Dispatch Entry field at the top of DailyProductionReportForm to auto-populate Despatch for all operations",
-      "acceptanceCriteria": [
-        "Batch Dispatch Entry field appears at the top of the form above individual operation entries",
-        "Field is labeled clearly as 'Apply Same Dispatch to All Operations' or similar",
-        "When a value is entered, all 17 operation Despatch fields are automatically filled with that value",
-        "Field is optional and can be left empty for individual dispatch entry",
-        "Clearing the batch field does not clear individual Despatch values already entered"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/DailyProductionReportForm.tsx",
-          "operation": "modify",
-          "description": "Add a new optional numeric input field at the top of the form, above the individual operation entries section, labeled 'Apply Same Dispatch to All Operations (Optional)'. Implement state management for this batch dispatch value. When a value is entered in this field, automatically populate the Despatch field for all 17 operations with the same value by updating the despatched state for each operation. Ensure the field is clearly marked as optional. Implement logic so that clearing the batch field does not reset individual Despatch values that were already set. Position the field prominently with helper text explaining its purpose."
-        }
-      ]
-    },
-    {
-      "id": "REQ-58",
-      "summary": "Update ContainerDailyReportPage to display calculated In Hand values using the formula: In Hand = Total Completed - Despatch",
-      "acceptanceCriteria": [
-        "In Hand column displays calculated values (Total Completed - Despatch) for each operation",
-        "Calculation is performed on the frontend after fetching data",
-        "All 17 operations show correct calculated In Hand values",
-        "Zero or empty records display 0 for In Hand calculation"
+        "Report table displays exactly 17 rows in sequential order",
+        "All operations from 1-17 are visible regardless of data availability",
+        "Operations without data show zero or empty values",
+        "Operations are displayed in the predefined order"
       ],
       "file_operations": [
         {
           "path": "frontend/src/pages/ContainerDailyReportPage.tsx",
           "operation": "modify",
-          "description": "Update the table rendering logic to compute In Hand values dynamically for each operation row. After fetching daily production reports from the backend, calculate In Hand using the formula: In Hand = Total Completed - Despatch for each operation. Ensure the calculation handles missing or zero values gracefully by defaulting to 0. Display the calculated In Hand value in the appropriate column for all 17 operations. Remove any reliance on the inHand field from the backend data and use the computed value instead."
+          "description": "Modify the page to fetch all 17 operations using useGetAllOperations hook and display them in sequential order (1-17) in the daily report table. For operations without production data for the selected date, display zero or empty values. Ensure the Excel-style table always shows all 17 rows with columns for operation name, today's production, total completed, despatch, and in-hand values."
+        }
+      ]
+    },
+    {
+      "id": "REQ-117",
+      "summary": "Update all production dashboard and history components to display operations in the predefined sequential order (1-17) when showing production data",
+      "acceptanceCriteria": [
+        "All components display operations in sequential order 1-17",
+        "Operation names are fetched from the Operations table via backend",
+        "No custom operation names or out-of-order operations appear",
+        "Sorting by operation maintains the 1-17 sequence"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/ProductionDashboardPage.tsx",
+          "operation": "modify",
+          "description": "Ensure that all production data displayed on the dashboard uses operation_id for sorting (1-17 sequential order) and operation_name from the backend Operations data. Verify that charts and tables displaying operation-level data maintain the predefined sequence."
+        },
+        {
+          "path": "frontend/src/pages/ProductionHistoryPage.tsx",
+          "operation": "modify",
+          "description": "Ensure the production history table displays operations in sequential order (1-17) when showing production data. Use operation_id for sorting and operation_name fetched from the backend. The filter dropdown for operations should also display them in the predefined order."
+        },
+        {
+          "path": "frontend/src/components/ProductionDashboardTable.tsx",
+          "operation": "modify",
+          "description": "Ensure the production dashboard table displays operations in sequential order (1-17) using operation_id for sorting. Operation names should be fetched from the backend Operations data and displayed in the predefined sequence."
+        },
+        {
+          "path": "frontend/src/components/DailyProductionReportTable.tsx",
+          "operation": "modify",
+          "description": "Ensure the daily production report table displays operations in sequential order (1-17) when showing production data. Use operation_id for sorting and operation_name from backend. Maintain the predefined sequence even when applying filters or sorting."
+        },
+        {
+          "path": "frontend/src/components/OperationComparisonChart.tsx",
+          "operation": "modify",
+          "description": "Ensure the operation comparison chart displays operations in sequential order (1-17) on the x-axis using operation_id for ordering and operation_name for labels. The chart should maintain the predefined sequence from backend data."
+        }
+      ]
+    },
+    {
+      "id": "REQ-118",
+      "summary": "Ensure the useGetAllOperations React Query hook correctly fetches all 17 operations from the backend with proper error handling and returns operations in sequential order",
+      "acceptanceCriteria": [
+        "Hook fetches data from getAllOperations backend function",
+        "Hook returns exactly 17 operations in sequential order",
+        "Hook handles loading state properly",
+        "Hook handles error state properly",
+        "Operations data is cached appropriately"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useGetAllOperations.ts",
+          "operation": "modify",
+          "description": "Verify and ensure the hook correctly fetches all 17 operations from the backend getAllOperations function. Ensure proper error handling, loading states, and appropriate caching (5-minute stale time as currently configured). The hook should return operations in sequential order by operation_id (1-17) if not already sorted by the backend."
+        }
+      ]
+    },
+    {
+      "id": "REQ-119",
+      "summary": "Add comprehensive validation in ContainerDailyReportEntryPage save functionality to ensure all production records reference valid operation_ids (1-17)",
+      "acceptanceCriteria": [
+        "Save function validates all operation_ids are between 1-17",
+        "Save function shows error toast for invalid operation_ids",
+        "Save function prevents submission of invalid data",
+        "User receives clear feedback on validation errors"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/ContainerDailyReportEntryPage.tsx",
+          "operation": "modify",
+          "description": "Add validation logic to the save functionality to ensure all production records being saved reference valid operation_ids between 1 and 17 inclusive. If any invalid operation_id is detected, prevent submission and display a user-friendly error message using a toast notification. Ensure users receive clear feedback on what went wrong."
         }
       ]
     }

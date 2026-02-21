@@ -1,9 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import { DailyProductionReport } from '../backend';
+import { toast } from 'sonner';
 
 interface UpdateReportParams {
-  report: DailyProductionReport;
+  id: bigint;
+  date: string;
+  todayProduction: bigint;
+  despatch: bigint;
 }
 
 export function useUpdateDailyProductionReport() {
@@ -11,31 +14,22 @@ export function useUpdateDailyProductionReport() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ report }: UpdateReportParams) => {
+    mutationFn: async (params: UpdateReportParams) => {
       if (!actor) throw new Error('Actor not available');
       
-      // Find the report ID by matching date and operation
-      const allReports = await actor.getAllDailyProductionReports();
-      const existingReport = allReports.find(
-        (r) => r.date === report.date && r.operation.id === report.operation.id
-      );
-      
-      if (!existingReport) {
-        throw new Error('Report not found');
-      }
-      
-      // Calculate the report ID (1-based index)
-      const reportId = BigInt(allReports.indexOf(existingReport) + 1);
-      
       return actor.updateDailyProductionReport(
-        reportId,
-        report.todayProduction,
-        report.despatched,
-        report.inHand
+        params.id,
+        params.date,
+        params.todayProduction,
+        params.despatch
       );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dailyProductionReports'] });
+    },
+    onError: (error) => {
+      console.error('Update report error:', error);
+      toast.error(`Failed to update report: ${error instanceof Error ? error.message : 'Unknown error'}`);
     },
   });
 }

@@ -2,16 +2,16 @@ import { useState, useMemo } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { DailyProductionReport } from '../backend';
+import { EnrichedDailyProductionReport } from '../hooks/useGetAllDailyProductionReports';
 import { ArrowUpDown, ArrowUp, ArrowDown, Edit } from 'lucide-react';
 
 interface DailyProductionReportTableProps {
-  reports: DailyProductionReport[];
-  onEdit: (report: DailyProductionReport) => void;
+  reports: EnrichedDailyProductionReport[];
+  onEdit: (report: EnrichedDailyProductionReport) => void;
   isViewerRole?: boolean;
 }
 
-type SortField = 'date' | 'operation' | 'todayProduction' | 'totalCompleted' | 'despatched' | 'inHand';
+type SortField = 'date' | 'operation' | 'todayProduction' | 'totalCompleted' | 'despatch';
 type SortDirection = 'asc' | 'desc';
 
 export default function DailyProductionReportTable({ reports, onEdit, isViewerRole = false }: DailyProductionReportTableProps) {
@@ -33,8 +33,9 @@ export default function DailyProductionReportTable({ reports, onEdit, isViewerRo
       let bValue: any;
 
       if (sortField === 'operation') {
-        aValue = a.operation.name;
-        bValue = b.operation.name;
+        // Sort by operation_id (1-17) to maintain predefined order
+        aValue = Number(a.operationId);
+        bValue = Number(b.operationId);
       } else if (sortField === 'date') {
         aValue = a.date;
         bValue = b.date;
@@ -120,40 +121,40 @@ export default function DailyProductionReportTable({ reports, onEdit, isViewerRo
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleSort('despatched')}
+                    onClick={() => handleSort('despatch')}
                     className="gap-2 font-semibold"
                   >
                     Despatched
-                    <SortIcon field="despatched" />
+                    <SortIcon field="despatch" />
                   </Button>
                 </TableHead>
                 <TableHead className="text-right">
-                  <Button variant="ghost" size="sm" onClick={() => handleSort('inHand')} className="gap-2 font-semibold">
-                    In Hand
-                    <SortIcon field="inHand" />
-                  </Button>
+                  <span className="font-semibold">In Hand</span>
                 </TableHead>
                 {!isViewerRole && <TableHead className="text-center">Actions</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sortedReports.map((report, index) => (
-                <TableRow key={`${report.date}-${report.operation.id}-${index}`}>
-                  <TableCell className="font-medium">{report.date}</TableCell>
-                  <TableCell>{report.operation.name}</TableCell>
-                  <TableCell className="text-right tabular-nums">{Number(report.todayProduction).toLocaleString()}</TableCell>
-                  <TableCell className="text-right tabular-nums">{Number(report.totalCompleted).toLocaleString()}</TableCell>
-                  <TableCell className="text-right tabular-nums">{Number(report.despatched).toLocaleString()}</TableCell>
-                  <TableCell className="text-right tabular-nums">{Number(report.inHand).toLocaleString()}</TableCell>
-                  {!isViewerRole && (
-                    <TableCell className="text-center">
-                      <Button variant="ghost" size="sm" onClick={() => onEdit(report)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))}
+              {sortedReports.map((report, index) => {
+                const inHand = Math.max(0, Number(report.totalCompleted) - Number(report.despatch));
+                return (
+                  <TableRow key={`${report.date}-${report.operationId}-${index}`}>
+                    <TableCell className="font-medium">{report.date}</TableCell>
+                    <TableCell>{report.operation.operationName}</TableCell>
+                    <TableCell className="text-right tabular-nums">{Number(report.todayProduction).toLocaleString()}</TableCell>
+                    <TableCell className="text-right tabular-nums">{Number(report.totalCompleted).toLocaleString()}</TableCell>
+                    <TableCell className="text-right tabular-nums">{Number(report.despatch).toLocaleString()}</TableCell>
+                    <TableCell className="text-right tabular-nums">{inHand.toLocaleString()}</TableCell>
+                    {!isViewerRole && (
+                      <TableCell className="text-center">
+                        <Button variant="ghost" size="sm" onClick={() => onEdit(report)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>

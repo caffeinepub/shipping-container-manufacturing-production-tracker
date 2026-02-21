@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-dailyproductionreportform-component-at-frontend-src-components-dailyproductionreportform-tsx-to-change-the-total-completed-field-from-a-manual-input-to-a-read-only-calculated-field-that-automatically-computes-the-cumulative-running-total-by-fetching-all-previous-production-records-for-the-selected-operation-from-the-database-and-adding-today-s-production-value-to-the-sum",
-      "featureTitle": "Update the DailyProductionReportForm component at frontend/src/components/DailyProductionReportForm.tsx to change the 'Total Completed' field from a manual input to a read-only calculated field that automatically computes the cumulative running total by fetching all previous production records for the selected operation from the database and adding today's production value to the sum",
+      "featureId": "feature-update-the-containerdailyreportentrypage-component-at-frontend-src-pages-containerdailyreportentrypage-tsx-to-always-display-all-17-predefined-operations-in-exact-sequential-order-1-17-in-the-production-entry-table-fetching-operation-data-from-the-getalloperations-backend-function",
+      "featureTitle": "Update the ContainerDailyReportEntryPage component at frontend/src/pages/ContainerDailyReportEntryPage.tsx to always display all 17 predefined operations in exact sequential order (1-17) in the production entry table, fetching operation data from the getAllOperations backend function",
       "files": [
-        "frontend/src/components/DailyProductionReportForm.tsx"
+        "frontend/src/pages/ContainerDailyReportEntryPage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -16,15 +16,17 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-54"
+        "REQ-115"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-the-dailyproductionreportform-component-to-automatically-calculate-and-display-the-in-hand-field-as-a-read-only-value-computed-as-total-completed-minus-despatch-in-hand-total-completed-despatch-recalculating-whenever-either-total-completed-or-despatch-values-change",
-      "featureTitle": "Update the DailyProductionReportForm component to automatically calculate and display the 'In Hand' field as a read-only value computed as Total Completed minus Despatch (In Hand = Total Completed - Despatch), recalculating whenever either Total Completed or Despatch values change",
+      "featureId": "feature-update-all-production-dashboard-and-history-components-productiondashboardpage-productionhistorypage-dailyproductionreporttable-to-display-operations-in-the-predefined-sequential-order-1-17-when-showing-production-data-using-operation-id-for-sorting-and-operation-name-for-display",
+      "featureTitle": "Update all production dashboard and history components (ProductionDashboardPage, ProductionHistoryPage, DailyProductionReportTable) to display operations in the predefined sequential order (1-17) when showing production data, using operation_id for sorting and operation_name for display",
       "files": [
-        "frontend/src/components/DailyProductionReportForm.tsx"
+        "frontend/src/components/DailyProductionReportTable.tsx",
+        "frontend/src/components/OperationComparisonChart.tsx",
+        "frontend/src/components/ProductionDashboardTable.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -35,15 +37,15 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-56"
+        "REQ-117"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-an-optional-batch-dispatch-entry-input-field-at-the-top-of-the-dailyproductionreportform-component-that-when-filled-with-a-dispatch-quantity-value-automatically-populates-the-despatch-field-for-all-17-operations-with-the-same-value-allowing-administrators-to-enter-a-single-container-dispatch-count-that-applies-to-all-operations-simultaneously",
-      "featureTitle": "Add an optional 'Batch Dispatch Entry' input field at the top of the DailyProductionReportForm component that, when filled with a dispatch quantity value, automatically populates the Despatch field for all 17 operations with the same value, allowing administrators to enter a single container dispatch count that applies to all operations simultaneously",
+      "featureId": "feature-add-comprehensive-validation-in-the-containerdailyreportentrypage-save-functionality-to-ensure-all-production-records-being-saved-reference-valid-operation-ids-1-17-displaying-user-friendly-error-messages-if-validation-fails",
+      "featureTitle": "Add comprehensive validation in the ContainerDailyReportEntryPage save functionality to ensure all production records being saved reference valid operation_ids (1-17), displaying user-friendly error messages if validation fails",
       "files": [
-        "frontend/src/components/DailyProductionReportForm.tsx"
+        "frontend/src/pages/ContainerDailyReportEntryPage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -54,26 +56,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-57"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-update-the-containerdailyreportpage-component-at-frontend-src-pages-containerdailyreportpage-tsx-to-display-calculated-values-for-each-operation-row-using-the-formula-in-hand-total-completed-despatch-ensuring-all-numeric-columns-show-accurate-computed-values-based-on-database-records",
-      "featureTitle": "Update the ContainerDailyReportPage component at frontend/src/pages/ContainerDailyReportPage.tsx to display calculated values for each operation row using the formula: In Hand = Total Completed - Despatch, ensuring all numeric columns show accurate computed values based on database records",
-      "files": [
-        "frontend/src/pages/ContainerDailyReportPage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-58"
+        "REQ-119"
       ],
       "confidence": "high"
     }

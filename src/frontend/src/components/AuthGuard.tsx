@@ -21,12 +21,13 @@ export default function AuthGuard({ children }: AuthGuardProps) {
 
   const isAuthenticated = !!identity;
   const isInitializing = loginStatus === 'initializing';
+  const isViewer = role !== 'admin';
 
   // Role-based route access control - must be called before any returns
   useEffect(() => {
-    if (isAuthenticated && roleFetched && role === 'viewer') {
+    if (isAuthenticated && roleFetched && isViewer) {
       // Define viewer-allowed routes
-      const viewerAllowedRoutes = ['/dashboard', '/production-dashboard'];
+      const viewerAllowedRoutes = ['/dashboard', '/production-dashboard', '/container-daily-report', '/production-history'];
       
       // Check if current path is not in allowed routes
       const isAllowedRoute = viewerAllowedRoutes.some(route => currentPath === route || currentPath === '/');
@@ -36,7 +37,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
         navigate({ to: '/production-dashboard' });
       }
     }
-  }, [isAuthenticated, role, roleFetched, currentPath, navigate]);
+  }, [isAuthenticated, role, roleFetched, currentPath, navigate, isViewer]);
 
   // Show loading state while checking authentication
   if (isInitializing || (isAuthenticated && (profileLoading || roleLoading))) {

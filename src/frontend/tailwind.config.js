@@ -33,6 +33,10 @@ export default {
                     DEFAULT: 'oklch(var(--destructive) / <alpha-value>)',
                     foreground: 'oklch(var(--destructive-foreground))'
                 },
+                success: {
+                    DEFAULT: 'oklch(var(--success) / <alpha-value>)',
+                    foreground: 'oklch(var(--success-foreground))'
+                },
                 muted: {
                     DEFAULT: 'oklch(var(--muted) / <alpha-value>)',
                     foreground: 'oklch(var(--muted-foreground) / <alpha-value>)'
@@ -55,7 +59,12 @@ export default {
                     3: 'oklch(var(--chart-3))',
                     4: 'oklch(var(--chart-4))',
                     5: 'oklch(var(--chart-5))'
-                }
+                },
+                deepNavy: '#0F172A',
+                steelGrey: '#1E293B',
+                containerRed: '#B91C1C',
+                electricBlue: '#2563EB',
+                industrialGreen: '#16A34A'
             },
             borderRadius: {
                 lg: 'var(--radius)',
@@ -64,7 +73,8 @@ export default {
             },
             boxShadow: {
                 xs: '0 1px 2px 0 rgba(0,0,0,0.05)',
-                industrial: '0 2px 4px 0 rgba(0,0,0,0.08)'
+                industrial: '0 2px 4px 0 rgba(0,0,0,0.08)',
+                glow: '0 0 20px rgba(37, 99, 235, 0.3)'
             },
             fontFamily: {
                 sans: [
@@ -75,7 +85,18 @@ export default {
                     'Segoe UI',
                     'Roboto',
                     'sans-serif'
+                ],
+                mono: [
+                    'JetBrains Mono',
+                    'Consolas',
+                    'Monaco',
+                    'Courier New',
+                    'monospace'
                 ]
+            },
+            fontSize: {
+                'display': ['3.5rem', { lineHeight: '1.1', fontWeight: '700' }],
+                'hero': ['2.5rem', { lineHeight: '1.2', fontWeight: '700' }],
             },
             keyframes: {
                 'accordion-down': {
@@ -85,11 +106,25 @@ export default {
                 'accordion-up': {
                     from: { height: 'var(--radix-accordion-content-height)' },
                     to: { height: '0' }
+                },
+                'fade-in': {
+                    from: { opacity: '0', transform: 'translateY(-10px)' },
+                    to: { opacity: '1', transform: 'translateY(0)' }
+                },
+                'counter-pulse': {
+                    '0%, 100%': { transform: 'scale(1)' },
+                    '50%': { transform: 'scale(1.05)' }
+                },
+                'progress-fill': {
+                    from: { width: '0%' }
                 }
             },
             animation: {
                 'accordion-down': 'accordion-down 0.2s ease-out',
-                'accordion-up': 'accordion-up 0.2s ease-out'
+                'accordion-up': 'accordion-up 0.2s ease-out',
+                'fade-in': 'fade-in 0.6s ease-out',
+                'counter-pulse': 'counter-pulse 0.5s ease-in-out',
+                'progress-fill': 'progress-fill 1s ease-out'
             }
         }
     },

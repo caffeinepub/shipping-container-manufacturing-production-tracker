@@ -4,11 +4,14 @@ import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
 import Iter "mo:core/Iter";
 import Nat "mo:core/Nat";
+
 import Array "mo:core/Array";
-
-import MixinAuthorization "authorization/MixinAuthorization";
+import Migration "migration";
 import AccessControl "authorization/access-control";
+import MixinAuthorization "authorization/MixinAuthorization";
 
+// Apply migration on upgrade automatically using actor's with clause
+(with migration = Migration.run)
 actor {
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
@@ -41,56 +44,31 @@ actor {
   };
 
   public type Operation = {
-    id : Nat;
-    name : Text;
+    operationId : Nat;
+    operationName : Text;
   };
 
-  public type DailyProductionReport = {
+  public type DailyOperationProduction = {
+    id : Nat;
     date : Text;
-    operation : Operation;
+    operationId : Nat;
     todayProduction : Nat;
-    totalCompleted : Nat;
-    despatched : Nat;
-    inHand : Nat;
-  };
-
-  public type DailyProductionReportWithId = {
-    id : Nat;
-    report : DailyProductionReport;
+    despatch : Nat;
   };
 
   let userProfiles = Map.empty<Principal, UserProfile>();
   let productionRecords = Map.empty<Nat, ProductionRecord>();
   let dispatchRecords = Map.empty<Nat, DispatchRecord>();
-  let dailyProductionReports = Map.empty<Nat, DailyProductionReportWithId>();
 
-  let operations = [
-    { id = 1; name = "Boxing" },
-    { id = 2; name = "Welding/Finishing" },
-    { id = 3; name = "Rear Wall" },
-    { id = 4; name = "Front Wall" },
-    { id = 5; name = "Side Wall" },
-    { id = 6; name = "Roof" },
-    { id = 7; name = "Rear Door" },
-    { id = 8; name = "Blasting & Primer" },
-    { id = 9; name = "Final Paint" },
-    { id = 10; name = "Gasket" },
-    { id = 11; name = "DLM" },
-    { id = 12; name = "Plywood" },
-    { id = 13; name = "Floor Screw" },
-    { id = 14; name = "Decal" },
-    { id = 15; name = "Data Plate" },
-    { id = 16; name = "Sikha" },
-    { id = 17; name = "Black Paint" },
-  ];
+  var operations = Map.empty<Nat, Operation>();
+  var dailyOperationProduction = Map.empty<Nat, DailyOperationProduction>();
 
   var nextProductionId = 1;
   var nextDispatchId = 1;
   var nextReportId = 1;
 
-  // User profile management
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
-    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view profiles");
     };
     userProfiles.get(caller);
@@ -103,241 +81,169 @@ actor {
     userProfiles.get(user);
   };
 
-  public shared ({ caller }) func saveCallerUserProfile(name : Text) : async () {
-    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+  public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can save profiles");
     };
-    userProfiles.add(caller, { name });
+    userProfiles.add(caller, profile);
   };
 
-  // Role management - returns role as text for frontend compatibility
-  public query ({ caller }) func getCallerRole() : async ?Text {
-    let role = AccessControl.getUserRole(accessControlState, caller);
-    switch (role) {
-      case (#admin) { ?"admin" };
-      case (#user) { ?"viewer" };
-      case (#guest) { null };
-    };
-  };
-
-  public shared ({ caller }) func updateUserRole(targetUser : Principal, newRole : Text) : async () {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Admin role required");
-    };
-    let mappedRole = switch (newRole) {
-      case ("admin") { #admin };
-      case ("viewer") { #user };
-      case (_) { Runtime.trap("Invalid role: must be 'admin' or 'viewer'") };
-    };
-    AccessControl.assignRole(accessControlState, caller, targetUser, mappedRole);
-  };
-
-  // Production record management - admin only for mutations
-  public shared ({ caller }) func addProductionRecord(record : ProductionRecord) : async () {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Admin role required");
-    };
-    productionRecords.add(nextProductionId, record);
-    nextProductionId += 1;
-  };
-
-  public query ({ caller }) func getAllProductionRecords() : async [ProductionRecord] {
-    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
-      Runtime.trap("Unauthorized: User role required");
-    };
-    productionRecords.values().toArray();
-  };
-
-  public query ({ caller }) func getProductionRecordsByDateRange(startDate : Text, endDate : Text) : async [ProductionRecord] {
-    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
-      Runtime.trap("Unauthorized: User role required");
-    };
-    let filtered = productionRecords.values().filter(
-      func(record) {
-        record.date >= startDate and record.date <= endDate
-      }
-    );
-    filtered.toArray();
-  };
-
-  // Dispatch record management - admin only for mutations
-  public shared ({ caller }) func addDispatchRecord(record : DispatchRecord) : async () {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Admin role required");
-    };
-    dispatchRecords.add(nextDispatchId, record);
-    nextDispatchId += 1;
-  };
-
-  public query ({ caller }) func getAllDispatchRecords() : async [DispatchRecord] {
-    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
-      Runtime.trap("Unauthorized: User role required");
-    };
-    dispatchRecords.values().toArray();
-  };
-
-  public query ({ caller }) func getWorkInHandStatus() : async [WorkInHandRecord] {
+  // Corrected function to sum today's production across all dates for a given operation
+  public shared ({ caller }) func calculateTotalCompleted(operationId : Nat, date : Text) : async Nat {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: User role required");
     };
 
-    let producedByType = Map.empty<Text, Nat>();
-    let dispatchedByType = Map.empty<Text, Nat>();
-
-    for (record in productionRecords.values()) {
-      let current = switch (producedByType.get(record.containerType)) {
-        case (null) { 0 };
-        case (?value) { value };
-      };
-      producedByType.add(record.containerType, current + record.quantity);
-    };
-
-    for (record in dispatchRecords.values()) {
-      let current = switch (dispatchedByType.get(record.containerType)) {
-        case (null) { 0 };
-        case (?value) { value };
-      };
-      dispatchedByType.add(record.containerType, current + record.quantity);
-    };
-
-    let containerTypes = producedByType.keys().toArray();
-
-    containerTypes.map(
-      func(containerType) {
-        let produced = switch (producedByType.get(containerType)) {
-          case (null) { 0 };
-          case (?value) { value };
-        };
-        let dispatched = switch (dispatchedByType.get(containerType)) {
-          case (null) { 0 };
-          case (?value) { value };
-        };
-        {
-          containerType;
-          producedQuantity = produced;
-          dispatchedQuantity = dispatched;
-          currentInventory = produced - dispatched;
-        };
-      }
-    );
-  };
-
-  // Calculate cumulative total completed for an operation
-  func calculateOperationTotalCompleted(operationId : Nat) : Nat {
     var sum = 0;
-    for (report in dailyProductionReports.values()) {
-      if (report.report.operation.id == operationId) {
-        sum += report.report.todayProduction;
+    for (record in dailyOperationProduction.values()) {
+      if (record.operationId == operationId and record.date <= date) {
+        sum += record.todayProduction;
       };
     };
     sum;
-  };
-
-  // Daily Production Reports CRUD - admin only for mutations
-  public shared ({ caller }) func createDailyProductionReport(
-    date : Text,
-    operationId : Nat,
-    todayProduction : Nat,
-    despatched : Nat,
-    inHand : Nat,
-  ) : async Nat {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Admin role required");
-    };
-
-    let operation = switch (operations.find(func(op) { op.id == operationId })) {
-      case (?op) { op };
-      case (null) { Runtime.trap("Invalid operation ID") };
-    };
-
-    let operationTotal = calculateOperationTotalCompleted(operationId);
-
-    let report : DailyProductionReport = {
-      date;
-      todayProduction;
-      totalCompleted = operationTotal + todayProduction;
-      despatched;
-      inHand;
-      operation;
-    };
-
-    let reportWithId = { id = nextReportId; report };
-    dailyProductionReports.add(nextReportId, reportWithId);
-    nextReportId += 1;
-    reportWithId.id;
-  };
-
-  public query ({ caller }) func getDailyProductionReport(id : Nat) : async ?DailyProductionReport {
-    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
-      Runtime.trap("Unauthorized: User role required");
-    };
-    switch (dailyProductionReports.get(id)) {
-      case (null) { null };
-      case (?reportWithId) { ?reportWithId.report };
-    };
-  };
-
-  public query ({ caller }) func getAllDailyProductionReports() : async [DailyProductionReport] {
-    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
-      Runtime.trap("Unauthorized: User role required");
-    };
-    dailyProductionReports.values().toArray().map(
-      func(reportWithId) { reportWithId.report }
-    );
-  };
-
-  public shared ({ caller }) func updateDailyProductionReport(
-    id : Nat,
-    todayProduction : Nat,
-    despatched : Nat,
-    inHand : Nat,
-  ) : async Bool {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Admin role required");
-    };
-
-    switch (dailyProductionReports.get(id)) {
-      case (null) { false };
-      case (?existingReport) {
-        let operationId = existingReport.report.operation.id;
-        let operationTotal = calculateOperationTotalCompleted(operationId);
-
-        let updatedReport = {
-          existingReport with
-          report = {
-            existingReport.report with
-            todayProduction;
-            totalCompleted = operationTotal + todayProduction;
-            despatched;
-            inHand;
-          };
-        };
-        dailyProductionReports.add(id, updatedReport);
-        true;
-      };
-    };
   };
 
   public query ({ caller }) func getAllOperations() : async [Operation] {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: User role required");
     };
-    operations;
+
+    // Transform map into array (1 to 17, ordered by operationId)
+    let result = Array.tabulate(
+      17,
+      func(i) {
+        let operationId = i + 1;
+        switch (operations.get(operationId)) {
+          case (?operation) { operation };
+          case (null) {
+            { operationId; operationName = "" };
+          };
+        };
+      },
+    );
+    result;
   };
 
-  public shared ({ caller }) func initializeDefaultReports() : async () {
+  public shared ({ caller }) func updateDailyProductionReport(
+    id : Nat,
+    newDate : Text,
+    todayProduction : Nat,
+    despatch : Nat,
+  ) : async Bool {
     if (not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Unauthorized: Admin role required");
     };
 
-    for (operation in operations.values()) {
-      ignore await createDailyProductionReport(
-        "",
-        operation.id,
-        0,
-        0,
-        0,
-      );
+    switch (dailyOperationProduction.get(id)) {
+      case (null) {
+        Runtime.trap("Report not found");
+      };
+      case (?existingReport) {
+        let updatedReport : DailyOperationProduction = {
+          id;
+          date = newDate;
+          operationId = existingReport.operationId;
+          todayProduction;
+          despatch;
+        };
+
+        dailyOperationProduction.add(id, updatedReport);
+        true;
+      };
     };
   };
+
+  public shared ({ caller }) func createDailyProductionReport(
+    date : Text,
+    operationId : Nat,
+    todayProduction : Nat,
+    despatch : Nat,
+  ) : async Nat {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Admin role required");
+    };
+
+    if (operationId < 1 or operationId > 17) {
+      Runtime.trap("Invalid operation ID. Must be between 1 and 17");
+    };
+
+    switch (operations.get(operationId)) {
+      case (null) {
+        Runtime.trap("Invalid operation ID. Operation does not exist");
+      };
+      case (?_) {};
+    };
+
+    let report : DailyOperationProduction = {
+      id = nextReportId;
+      date;
+      operationId;
+      todayProduction;
+      despatch;
+    };
+
+    dailyOperationProduction.add(nextReportId, report);
+    let createdId = nextReportId;
+    nextReportId += 1;
+    createdId;
+  };
+
+  public query ({ caller }) func getAllDailyProductionReports() : async [DailyOperationProduction] {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: User role required");
+    };
+    dailyOperationProduction.values().toArray();
+  };
+
+  public query ({ caller }) func getReportsByOperationAndDateRange(
+    operationId : Nat,
+    startDate : Text,
+    endDate : Text,
+  ) : async [DailyOperationProduction] {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: User role required");
+    };
+
+    let filtered = dailyOperationProduction.values().filter(
+      func(report) {
+        report.operationId == operationId and report.date >= startDate and report.date <= endDate
+      }
+    );
+    filtered.toArray();
+  };
+
+  // Private system-internal function to initialize default operations
+  // This is called automatically during migration and should not be publicly accessible
+  func initializeOperations() {
+    operations := Map.empty<Nat, Operation>();
+    let operationList = [
+      (1, "Boxing"),
+      (2, "Welding/Finishing"),
+      (3, "Rear Wall"),
+      (4, "Front Wall"),
+      (5, "Side Wall"),
+      (6, "Roof"),
+      (7, "Rear Door"),
+      (8, "Blasting & Primer"),
+      (9, "Final Paint"),
+      (10, "Gasket"),
+      (11, "DLM"),
+      (12, "Plywood"),
+      (13, "Floor Screw"),
+      (14, "Decal"),
+      (15, "Data Plate"),
+      (16, "Sikha"),
+      (17, "Black Paint"),
+    ];
+
+    for ((operationId, operationName) in operationList.values()) {
+      operations.add(operationId, {
+        operationId;
+        operationName;
+      });
+    };
+  };
+
+  // Initialize operations on first deployment
+  initializeOperations();
 };
