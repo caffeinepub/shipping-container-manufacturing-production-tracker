@@ -52,6 +52,7 @@ export interface backendInterface {
     getAllDailyProductionReports(): Promise<Array<DailyProductionReport>>;
     getAllDispatchRecords(): Promise<Array<DispatchRecord>>;
     getAllProductionRecords(): Promise<Array<ProductionRecord>>;
+    getCallerRole(): Promise<string | null>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getDailyProductionReport(id: bigint): Promise<DailyProductionReport | null>;
@@ -60,6 +61,7 @@ export interface backendInterface {
     getWorkInHandStatus(): Promise<Array<WorkInHandRecord>>;
     initializeDefaultReports(): Promise<void>;
     isCallerAdmin(): Promise<boolean>;
-    saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    saveCallerUserProfile(name: string): Promise<void>;
     updateDailyProductionReport(id: bigint, updatedReport: DailyProductionReport): Promise<boolean>;
+    updateUserRole(targetUser: Principal, newRole: string): Promise<void>;
 }

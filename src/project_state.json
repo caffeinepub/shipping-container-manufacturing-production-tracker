@@ -1,13 +1,17 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 7,
-  "summary": "Responsive industrial production tracking web application for a Shipping Container Manufacturing Unit focused on 40ft High Cube Containers with admin login, operation-wise daily production database, dashboard, history, dispatch tracking, and operation-wise status. Mobile-friendly with clean industrial UI.",
+  "projectStateVersion": 17,
+  "summary": "Responsive industrial production tracking web application for a Shipping Container Manufacturing Unit focused on 40ft High Cube Containers with role-based access control (Admin can add/edit, Viewer can only view dashboard), operation-wise daily production database, dashboard, history, dispatch tracking, and operation-wise status. Mobile-friendly with clean industrial UI.",
   "architectural_notes": [
     "Mobile-first responsive design for smartphone data entry",
     "Clean industrial dashboard style UI with table layout and summary cards",
     "Operation-specific production tracking with 17 predefined manufacturing operations for 40ft High Cube Containers",
     "Daily_Production_Report table structure: id, date, operation_name, today_production, total_completed, despatched, in_hand",
-    "Admin Production Update Panel performs automatic calculation: In Hand = Total Completed - Despatched"
+    "Admin Production Update Panel performs automatic calculation: In Hand = Total Completed - Despatched",
+    "Production Dashboard auto-refreshes when new production data is entered",
+    "Monthly Production Summary displays monthly target of 100 containers with calculated metrics",
+    "Role-based access control: Admin role can create/edit production data, Viewer role has read-only dashboard access",
+    "All production data stored securely in internal backend database with authentication required"
   ],
   "known_issues": [],
   "isFixRequest": false,
@@ -91,6 +95,174 @@
         "REQ-13"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-create-a-new-productiondashboardpage-component-at-frontend-src-pages-productiondashboardpage-tsx-that-displays-a-comprehensive-live-production-dashboard",
+      "title": "Create a new ProductionDashboardPage component at frontend/src/pages/ProductionDashboardPage.tsx that displays a comprehensive live production dashboard",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-date-wise-daily-production-table-component-that-displays-all-daily-production-report-records-with-columns-for-operation-name-today-s-production-total-completed-despatched-and-in-hand",
+      "title": "Build a date-wise daily production table component that displays all daily production report records with columns for Operation Name, Today's Production, Total Completed, Despatched, and In Hand",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-three-summary-cards-at-the-top-of-the-production-dashboard-showing-total-container-produced-today-total-container-despatched-and-total-work-in-hand-calculated-from-daily-production-report-data",
+      "title": "Add three summary cards at the top of the Production Dashboard showing Total Container Produced Today, Total Container Despatched, and Total Work in Hand, calculated from daily production report data",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-auto-refresh-functionality-on-the-production-dashboard-that-automatically-refetches-production-data-when-new-production-records-are-created-or-updated",
+      "title": "Implement auto-refresh functionality on the Production Dashboard that automatically refetches production data when new production records are created or updated",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-navigation-menu-item-in-the-layout-component-linking-to-the-new-production-dashboard-page-at-route-production-dashboard",
+      "title": "Add a navigation menu item in the Layout component linking to the new Production Dashboard page at route /production-dashboard",
+      "reqIds": [
+        "REQ-18"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-configure-routing-in-app-tsx-to-add-the-new-production-dashboard-page-at-route-production-dashboard-protected-by-authguard",
+      "title": "Configure routing in App.tsx to add the new Production Dashboard page at route /production-dashboard, protected by AuthGuard",
+      "reqIds": [
+        "REQ-19"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-monthly-production-summary-section-to-the-production-dashboard-page-that-displays-four-key-metrics-total-containers-produced-this-month-remaining-to-achieve-target-calculated-as-100-minus-total-produced-production-completion-percentage-calculated-as-total-produced-100-100-and-daily-average-production-calculated-as-total-produced-divided-by-number-of-days-elapsed-in-current-month",
+      "title": "Add a Monthly Production Summary section to the Production Dashboard page that displays four key metrics: Total Containers Produced This Month, Remaining to Achieve Target (calculated as 100 minus total produced), Production Completion Percentage (calculated as (total produced / 100) * 100), and Daily Average Production (calculated as total produced divided by number of days elapsed in current month)",
+      "reqIds": [
+        "REQ-20"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-style-the-monthly-production-summary-section-using-summarycard-components-consistent-with-the-existing-dashboard-design-displaying-the-four-metrics-in-a-grid-layout-that-follows-the-industrial-theme-with-appropriate-icons-for-each-metric",
+      "title": "Style the Monthly Production Summary section using SummaryCard components consistent with the existing dashboard design, displaying the four metrics in a grid layout that follows the industrial theme with appropriate icons for each metric",
+      "reqIds": [
+        "REQ-21"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-line-chart-component-to-the-production-dashboard-page-showing-date-vs-total-production-output-trend-displaying-daily-total-production-aggregated-from-daily-production-reports-over-time",
+      "title": "Add a line chart component to the Production Dashboard page showing Date vs Total Production Output trend, displaying daily total production aggregated from daily production reports over time",
+      "reqIds": [
+        "REQ-22"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-bar-chart-component-showing-operation-wise-production-comparison-displaying-total-production-quantities-grouped-by-operation-name-from-daily-production-reports",
+      "title": "Create a bar chart component showing Operation-wise Production Comparison, displaying total production quantities grouped by operation name from daily production reports",
+      "reqIds": [
+        "REQ-23"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-position-both-charts-prominently-on-the-production-dashboard-page-below-the-monthly-and-daily-summary-cards-but-above-the-detailed-production-table",
+      "title": "Position both charts prominently on the Production Dashboard page below the monthly and daily summary cards but above the detailed production table",
+      "reqIds": [
+        "REQ-24"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-new-productionhistorypage-component-at-frontend-src-pages-productionhistorypage-tsx-that-displays-a-comprehensive-production-history-interface-with-date-range-filtering-and-edit-capabilities-for-daily-production-report-records",
+      "title": "Create a new ProductionHistoryPage component at frontend/src/pages/ProductionHistoryPage.tsx that displays a comprehensive production history interface with date range filtering and edit capabilities for daily production report records",
+      "reqIds": [
+        "REQ-25"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-integrate-the-dailyproductionreportfilter-component-into-the-productionhistorypage-to-allow-administrators-to-filter-production-data-by-date-range-and-operation-name",
+      "title": "Integrate the DailyProductionReportFilter component into the ProductionHistoryPage to allow administrators to filter production data by date range and operation name",
+      "reqIds": [
+        "REQ-26"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-display-all-daily-production-report-records-in-the-dailyproductionreporttable-component-on-the-productionhistorypage-showing-date-operation-name-today-s-production-total-completed-despatched-and-in-hand-quantities-with-sorting-capabilities",
+      "title": "Display all daily production report records in the DailyProductionReportTable component on the ProductionHistoryPage, showing date, operation name, today's production, total completed, despatched, and in-hand quantities with sorting capabilities",
+      "reqIds": [
+        "REQ-27"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-enable-inline-editing-of-previous-daily-production-report-entries-in-the-dailyproductionreporttable-on-the-productionhistorypage-allowing-administrators-to-modify-today-production-total-completed-and-despatched-values-with-automatic-in-hand-recalculation",
+      "title": "Enable inline editing of previous daily production report entries in the DailyProductionReportTable on the ProductionHistoryPage, allowing administrators to modify today_production, total_completed, and despatched values with automatic in_hand recalculation",
+      "reqIds": [
+        "REQ-28"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-navigation-menu-item-in-the-layout-component-linking-to-the-production-history-page-at-route-production-history",
+      "title": "Add a navigation menu item in the Layout component linking to the Production History page at route /production-history",
+      "reqIds": [
+        "REQ-29"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-configure-routing-in-app-tsx-to-add-the-new-production-history-page-at-route-production-history-protected-by-authguard",
+      "title": "Configure routing in App.tsx to add the new Production History page at route /production-history, protected by AuthGuard",
+      "reqIds": [
+        "REQ-30"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-custom-react-hook-usegetcallerrole-at-frontend-src-hooks-usegetcallerrole-ts-that-fetches-the-current-user-s-role-using-the-getcallerrole-backend-function",
+      "title": "Create a custom React hook 'useGetCallerRole' at frontend/src/hooks/useGetCallerRole.ts that fetches the current user's role using the getCallerRole backend function",
+      "reqIds": [
+        "REQ-34"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-authguard-component-at-frontend-src-components-authguard-tsx-to-check-caller-role-and-conditionally-render-components-show-full-application-to-admin-users-show-read-only-dashboard-access-to-viewer-users-and-show-access-denied-to-unauthenticated-users",
+      "title": "Update the AuthGuard component at frontend/src/components/AuthGuard.tsx to check caller role and conditionally render components: show full application to admin users, show read-only dashboard access to viewer users, and show access denied to unauthenticated users",
+      "reqIds": [
+        "REQ-35"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-layout-component-navigation-menu-at-frontend-src-components-layout-tsx-to-conditionally-display-menu-items-based-on-user-role-show-all-navigation-items-to-admin-users-show-only-dashboard-links-to-viewer-users",
+      "title": "Update the Layout component navigation menu at frontend/src/components/Layout.tsx to conditionally display menu items based on user role: show all navigation items to admin users, show only dashboard links to viewer users",
+      "reqIds": [
+        "REQ-36"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-hide-or-disable-all-data-entry-forms-and-edit-delete-buttons-on-frontend-pages-for-viewer-users-disable-dailyproductionreportform-productionentrypage-form-dispatchentryform-and-edit-delete-actions-in-all-tables",
+      "title": "Hide or disable all data entry forms and edit/delete buttons on frontend pages for viewer users: disable DailyProductionReportForm, ProductionEntryPage form, DispatchEntryForm, and edit/delete actions in all tables",
+      "reqIds": [
+        "REQ-37"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -170,6 +342,82 @@
       "id": "AR-12",
       "summary": "Create Admin Production Update Panel with date selection, operation name dropdown, input fields for today's production, total completed, and despatched quantity, with automatic calculation of in-hand (total completed minus despatched), storing data in Daily_Production_Report table",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-13",
+      "summary": "Create live Production Dashboard page with date-wise daily production table (columns: operation name, today's production, total completed, despatched, in hand) and summary cards showing total containers produced today, total containers despatched, and total work in hand with auto-refresh",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-14",
+      "summary": "Monthly Production Summary section showing Monthly Target (100 containers), Total Containers Produced This Month, Remaining to Achieve Target, Production Completion Percentage, and Daily Average Production",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-15",
+      "summary": "Add graphical production trend chart showing Date vs Total Production Output",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-16",
+      "summary": "Create Operation-wise Production Comparison Bar Chart",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-17",
+      "summary": "Create Production History Page with date range filter, view previous production entries, and edit functionality",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-18",
+      "summary": "Implement role-based access control with Admin role (can add/edit production data) and Viewer role (can only view dashboard)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-19",
+      "summary": "Add a 'role' field to the UserProfile data structure in backend/main.mo with two possible values: 'admin' and 'viewer', defaulting new users to 'viewer' role",
+      "reqIds": [
+        "REQ-31"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-20",
+      "summary": "Update all backend mutation functions (addProductionRecord, addDispatchRecord, createDailyProductionReport, updateDailyProductionReport, deleteDailyProductionReport) to check that the caller has 'admin' role before allowing the operation, returning an error if the caller has 'viewer' role",
+      "reqIds": [
+        "REQ-32"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-21",
+      "summary": "Create a backend query function 'getCallerRole' that returns the role ('admin' or 'viewer') of the authenticated caller, returning null if no profile exists",
+      "reqIds": [
+        "REQ-33"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-26",
+      "summary": "Add a backend function 'updateUserRole' that allows an existing admin to change another user's role between 'admin' and 'viewer', verifying that the caller has admin privileges before allowing the operation",
+      "reqIds": [
+        "REQ-38"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-27",
+      "summary": "Verify that all production data (ProductionRecord, DispatchRecord, DailyProductionReport, UserProfile) is stored in backend stable variables in backend/main.mo to ensure persistence across canister upgrades",
+      "reqIds": [
+        "REQ-39"
+      ],
       "status": "pending"
     }
   ],

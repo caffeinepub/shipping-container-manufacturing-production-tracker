@@ -1,4 +1,87 @@
 {
   "kind": "feature_evidence_report",
-  "features": []
+  "features": [
+    {
+      "featureId": "feature-create-a-custom-react-hook-usegetcallerrole-at-frontend-src-hooks-usegetcallerrole-ts-that-fetches-the-current-user-s-role-using-the-getcallerrole-backend-function",
+      "featureTitle": "Create a custom React hook 'useGetCallerRole' at frontend/src/hooks/useGetCallerRole.ts that fetches the current user's role using the getCallerRole backend function",
+      "files": [
+        "frontend/src/hooks/useGetCallerRole.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-34"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-the-authguard-component-at-frontend-src-components-authguard-tsx-to-check-caller-role-and-conditionally-render-components-show-full-application-to-admin-users-show-read-only-dashboard-access-to-viewer-users-and-show-access-denied-to-unauthenticated-users",
+      "featureTitle": "Update the AuthGuard component at frontend/src/components/AuthGuard.tsx to check caller role and conditionally render components: show full application to admin users, show read-only dashboard access to viewer users, and show access denied to unauthenticated users",
+      "files": [
+        "frontend/src/components/AuthGuard.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-35"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-the-layout-component-navigation-menu-at-frontend-src-components-layout-tsx-to-conditionally-display-menu-items-based-on-user-role-show-all-navigation-items-to-admin-users-show-only-dashboard-links-to-viewer-users",
+      "featureTitle": "Update the Layout component navigation menu at frontend/src/components/Layout.tsx to conditionally display menu items based on user role: show all navigation items to admin users, show only dashboard links to viewer users",
+      "files": [
+        "frontend/src/components/Layout.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-36"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-hide-or-disable-all-data-entry-forms-and-edit-delete-buttons-on-frontend-pages-for-viewer-users-disable-dailyproductionreportform-productionentrypage-form-dispatchentryform-and-edit-delete-actions-in-all-tables",
+      "featureTitle": "Hide or disable all data entry forms and edit/delete buttons on frontend pages for viewer users: disable DailyProductionReportForm, ProductionEntryPage form, DispatchEntryForm, and edit/delete actions in all tables",
+      "files": [
+        "frontend/src/components/DailyProductionReportForm.tsx",
+        "frontend/src/components/DailyProductionReportTable.tsx",
+        "frontend/src/components/DispatchEntryForm.tsx",
+        "frontend/src/pages/DailyProductionReportPage.tsx",
+        "frontend/src/pages/DispatchTrackingPage.tsx",
+        "frontend/src/pages/ProductionEntryPage.tsx",
+        "frontend/src/pages/WorkInHandPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-37"
+      ],
+      "confidence": "high"
+    }
+  ]
 }

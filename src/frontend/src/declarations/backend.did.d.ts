@@ -55,6 +55,7 @@ export interface _SERVICE {
   >,
   'getAllDispatchRecords' : ActorMethod<[], Array<DispatchRecord>>,
   'getAllProductionRecords' : ActorMethod<[], Array<ProductionRecord>>,
+  'getCallerRole' : ActorMethod<[], [] | [string]>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getDailyProductionReport' : ActorMethod<
@@ -69,11 +70,12 @@ export interface _SERVICE {
   'getWorkInHandStatus' : ActorMethod<[], Array<WorkInHandRecord>>,
   'initializeDefaultReports' : ActorMethod<[], undefined>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
-  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'saveCallerUserProfile' : ActorMethod<[string], undefined>,
   'updateDailyProductionReport' : ActorMethod<
     [bigint, DailyProductionReport],
     boolean
   >,
+  'updateUserRole' : ActorMethod<[Principal, string], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

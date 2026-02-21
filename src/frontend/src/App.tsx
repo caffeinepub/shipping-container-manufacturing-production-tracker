@@ -8,6 +8,7 @@ import ProductionHistoryPage from './pages/ProductionHistoryPage';
 import DispatchTrackingPage from './pages/DispatchTrackingPage';
 import WorkInHandPage from './pages/WorkInHandPage';
 import DailyProductionReportPage from './pages/DailyProductionReportPage';
+import ProductionDashboardPage from './pages/ProductionDashboardPage';
 import AuthGuard from './components/AuthGuard';
 
 const rootRoute = createRootRoute({
@@ -38,6 +39,16 @@ const dashboardRoute = createRoute({
   ),
 });
 
+const productionDashboardRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/production-dashboard',
+  component: () => (
+    <AuthGuard>
+      <ProductionDashboardPage />
+    </AuthGuard>
+  ),
+});
+
 const productionEntryRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/production/entry',
@@ -51,6 +62,16 @@ const productionEntryRoute = createRoute({
 const productionHistoryRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/production/history',
+  component: () => (
+    <AuthGuard>
+      <ProductionHistoryPage />
+    </AuthGuard>
+  ),
+});
+
+const productionHistoryAltRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/production-history',
   component: () => (
     <AuthGuard>
       <ProductionHistoryPage />
@@ -91,8 +112,10 @@ const dailyProductionReportRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   indexRoute,
   dashboardRoute,
+  productionDashboardRoute,
   productionEntryRoute,
   productionHistoryRoute,
+  productionHistoryAltRoute,
   dispatchRoute,
   workInHandRoute,
   dailyProductionReportRoute,

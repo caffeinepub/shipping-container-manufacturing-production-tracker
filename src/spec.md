@@ -1,14 +1,17 @@
 # Specification
 
 ## Summary
-**Goal:** Create an Admin Production Update Panel that allows administrators to update production data with auto-calculation features and daily update capability.
+**Goal:** Implement role-based access control with Admin and Viewer roles, and ensure all production data is securely stored in backend stable storage.
 
 **Planned changes:**
-- Add a new Admin Production Update Panel component to the frontend
-- Implement auto-calculation logic for production metrics based on input data
-- Add daily update capability allowing admins to modify production records
-- Create UI controls for selecting dates and operations to update
-- Implement validation and submission logic for production updates
-- Add backend endpoints to support production data updates while preserving existing CRUD operations
+- Add role field ('admin' or 'viewer') to UserProfile, defaulting new users to 'viewer'
+- Restrict all data modification operations (add/edit/delete) to admin role only
+- Create backend query function to retrieve caller's role
+- Create frontend hook to fetch and cache user role
+- Update AuthGuard to enforce role-based route access (admin: all routes, viewer: dashboard only)
+- Update Layout navigation menu to show only dashboard links for viewer users
+- Hide or disable all data entry forms and edit/delete buttons for viewer users
+- Add backend function for admins to update other users' roles
+- Verify all production data uses stable storage for persistence across canister upgrades
 
-**User-visible outcome:** Administrators can access a dedicated panel to update production data for any date and operation, with automatic calculations applied to related metrics, streamlining the production tracking workflow.
+**User-visible outcome:** Admin users can add, edit, and delete production data with full access to all features. Viewer users can only view dashboards and production data without any edit capabilities. The navigation menu and available actions automatically adjust based on user role.

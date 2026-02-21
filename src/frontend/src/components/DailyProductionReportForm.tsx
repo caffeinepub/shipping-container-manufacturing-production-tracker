@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useCreateDailyProductionReport } from '../hooks/useCreateDailyProductionReport';
 import { useUpdateDailyProductionReport } from '../hooks/useUpdateDailyProductionReport';
+import { useGetCallerRole } from '../hooks/useGetCallerRole';
 import { Loader2, FileText, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { DailyProductionReport } from '../backend';
@@ -44,6 +45,7 @@ export default function DailyProductionReportForm({ editingReport, onCancelEdit 
 
   const createReport = useCreateDailyProductionReport();
   const updateReport = useUpdateDailyProductionReport();
+  const { data: role } = useGetCallerRole();
 
   // Calculate In Hand automatically
   const calculateInHand = (): number => {
@@ -135,6 +137,7 @@ export default function DailyProductionReportForm({ editingReport, onCancelEdit 
   };
 
   const isSubmitting = createReport.isPending || updateReport.isPending;
+  const isDisabled = role === 'viewer';
 
   return (
     <Card>
@@ -144,7 +147,7 @@ export default function DailyProductionReportForm({ editingReport, onCancelEdit 
             <FileText className="h-5 w-5" />
             {editingReport ? 'Edit Production Report' : 'Admin Production Update Panel'}
           </div>
-          {editingReport && (
+          {editingReport && !isDisabled && (
             <Button variant="ghost" size="sm" onClick={resetForm}>
               <X className="h-4 w-4 mr-1" />
               Cancel
@@ -165,6 +168,7 @@ export default function DailyProductionReportForm({ editingReport, onCancelEdit 
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 required
+                disabled={isDisabled}
                 max={new Date().toISOString().split('T')[0]}
               />
             </div>
@@ -173,7 +177,7 @@ export default function DailyProductionReportForm({ editingReport, onCancelEdit 
               <Label htmlFor="operationName">
                 Operation Name <span className="text-destructive">*</span>
               </Label>
-              <Select value={operationName} onValueChange={setOperationName} required>
+              <Select value={operationName} onValueChange={setOperationName} required disabled={isDisabled}>
                 <SelectTrigger id="operationName">
                   <SelectValue placeholder="Select operation" />
                 </SelectTrigger>
@@ -199,6 +203,7 @@ export default function DailyProductionReportForm({ editingReport, onCancelEdit 
                 onChange={(e) => setTodayProduction(e.target.value)}
                 placeholder="0"
                 required
+                disabled={isDisabled}
               />
             </div>
 
@@ -214,6 +219,7 @@ export default function DailyProductionReportForm({ editingReport, onCancelEdit 
                 onChange={(e) => setTotalCompleted(e.target.value)}
                 placeholder="0"
                 required
+                disabled={isDisabled}
               />
             </div>
 
@@ -229,6 +235,7 @@ export default function DailyProductionReportForm({ editingReport, onCancelEdit 
                 onChange={(e) => setDespatched(e.target.value)}
                 placeholder="0"
                 required
+                disabled={isDisabled}
               />
             </div>
 
@@ -248,18 +255,20 @@ export default function DailyProductionReportForm({ editingReport, onCancelEdit 
             </div>
           </div>
 
-          <Button type="submit" disabled={isSubmitting} className="w-full md:w-auto">
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {editingReport ? 'Updating...' : 'Saving...'}
-              </>
-            ) : editingReport ? (
-              'Update Report'
-            ) : (
-              'Add Report'
-            )}
-          </Button>
+          {!isDisabled && (
+            <Button type="submit" disabled={isSubmitting} className="w-full md:w-auto">
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {editingReport ? 'Updating...' : 'Saving...'}
+                </>
+              ) : editingReport ? (
+                'Update Report'
+              ) : (
+                'Add Report'
+              )}
+            </Button>
+          )}
         </form>
       </CardContent>
     </Card>

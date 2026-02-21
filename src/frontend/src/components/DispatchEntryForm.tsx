@@ -4,6 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAddDispatchRecord } from '../hooks/useAddDispatchRecord';
+import { useGetCallerRole } from '../hooks/useGetCallerRole';
 import { Loader2, Truck } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -15,6 +16,7 @@ export default function DispatchEntryForm() {
   const [trackingReference, setTrackingReference] = useState('');
 
   const addDispatch = useAddDispatchRecord();
+  const { data: role } = useGetCallerRole();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,6 +56,8 @@ export default function DispatchEntryForm() {
     );
   };
 
+  const isDisabled = role === 'viewer';
+
   return (
     <Card>
       <CardHeader>
@@ -75,6 +79,7 @@ export default function DispatchEntryForm() {
                 value={dispatchDate}
                 onChange={(e) => setDispatchDate(e.target.value)}
                 required
+                disabled={isDisabled}
                 max={new Date().toISOString().split('T')[0]}
               />
             </div>
@@ -89,6 +94,7 @@ export default function DispatchEntryForm() {
                 onChange={(e) => setContainerType(e.target.value)}
                 placeholder="e.g., 20ft Standard, 40ft HC"
                 required
+                disabled={isDisabled}
               />
             </div>
 
@@ -104,6 +110,7 @@ export default function DispatchEntryForm() {
                 onChange={(e) => setQuantity(e.target.value)}
                 placeholder="Enter quantity"
                 required
+                disabled={isDisabled}
               />
             </div>
 
@@ -117,6 +124,7 @@ export default function DispatchEntryForm() {
                 onChange={(e) => setDestination(e.target.value)}
                 placeholder="e.g., Port of Mumbai"
                 required
+                disabled={isDisabled}
               />
             </div>
 
@@ -130,20 +138,23 @@ export default function DispatchEntryForm() {
                 onChange={(e) => setTrackingReference(e.target.value)}
                 placeholder="e.g., TRK-2024-001"
                 required
+                disabled={isDisabled}
               />
             </div>
           </div>
 
-          <Button type="submit" disabled={addDispatch.isPending} className="w-full md:w-auto">
-            {addDispatch.isPending ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              'Add Dispatch Record'
-            )}
-          </Button>
+          {!isDisabled && (
+            <Button type="submit" disabled={addDispatch.isPending} className="w-full md:w-auto">
+              {addDispatch.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                'Add Dispatch Record'
+              )}
+            </Button>
+          )}
         </form>
       </CardContent>
     </Card>

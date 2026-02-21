@@ -1,15 +1,107 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-20T11:23:35.175Z",
+  "generatedAt": "2026-02-20T11:59:18.595Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 0,
-    "implemented": 0,
-    "items": []
+    "total": 9,
+    "implemented": 4,
+    "items": [
+      {
+        "id": "REQ-31",
+        "summary": "Add a 'role' field to the UserProfile data structure in backend/main.mo with two possible values: 'admin' and 'viewer', defaulting new users to 'viewer' role",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-32",
+        "summary": "Update all backend mutation functions (addProductionRecord, addDispatchRecord, createDailyProductionReport, updateDailyProductionReport, deleteDailyProductionReport) to check that the caller has 'admin' role before allowing the operation, returning an error if the caller has 'viewer' role",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-33",
+        "summary": "Create a backend query function 'getCallerRole' that returns the role ('admin' or 'viewer') of the authenticated caller, returning null if no profile exists",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-34",
+        "summary": "Create a custom React hook 'useGetCallerRole' at frontend/src/hooks/useGetCallerRole.ts that fetches the current user's role using the getCallerRole backend function",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useGetCallerRole.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useGetCallerRole.ts"
+        ]
+      },
+      {
+        "id": "REQ-35",
+        "summary": "Update the AuthGuard component at frontend/src/components/AuthGuard.tsx to check caller role and conditionally render components: show full application to admin users, show read-only dashboard access to viewer users, and show access denied to unauthenticated users",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/AuthGuard.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/AuthGuard.tsx"
+        ]
+      },
+      {
+        "id": "REQ-36",
+        "summary": "Update the Layout component navigation menu at frontend/src/components/Layout.tsx to conditionally display menu items based on user role: show all navigation items to admin users, show only dashboard links to viewer users",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/Layout.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/Layout.tsx"
+        ]
+      },
+      {
+        "id": "REQ-37",
+        "summary": "Hide or disable all data entry forms and edit/delete buttons on frontend pages for viewer users: disable DailyProductionReportForm, ProductionEntryPage form, DispatchEntryForm, and edit/delete actions in all tables",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/ProductionEntryPage.tsx",
+          "frontend/src/components/DailyProductionReportForm.tsx",
+          "frontend/src/components/DispatchEntryForm.tsx",
+          "frontend/src/components/DailyProductionReportTable.tsx",
+          "frontend/src/pages/DispatchTrackingPage.tsx",
+          "frontend/src/pages/DailyProductionReportPage.tsx",
+          "frontend/src/pages/WorkInHandPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/ProductionEntryPage.tsx",
+          "frontend/src/components/DailyProductionReportForm.tsx",
+          "frontend/src/components/DispatchEntryForm.tsx",
+          "frontend/src/components/DailyProductionReportTable.tsx",
+          "frontend/src/pages/DispatchTrackingPage.tsx",
+          "frontend/src/pages/DailyProductionReportPage.tsx",
+          "frontend/src/pages/WorkInHandPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-38",
+        "summary": "Add a backend function 'updateUserRole' that allows an existing admin to change another user's role between 'admin' and 'viewer', verifying that the caller has admin privileges before allowing the operation",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-39",
+        "summary": "Verify that all production data (ProductionRecord, DispatchRecord, DailyProductionReport, UserProfile) is stored in backend stable variables in backend/main.mo to ensure persistence across canister upgrades",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      }
+    ]
   },
   "changedFiles": [
     "backend/main.mo",
@@ -17,7 +109,23 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/AuthGuard.tsx",
     "frontend/src/components/DailyProductionReportForm.tsx",
+    "frontend/src/components/DailyProductionReportTable.tsx",
+    "frontend/src/components/DispatchEntryForm.tsx",
+    "frontend/src/components/Layout.tsx",
+    "frontend/src/components/ProfileSetupModal.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useGetCallerRole.ts",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/hooks/useSaveCallerUserProfile.ts",
+    "frontend/src/pages/DailyProductionReportPage.tsx",
+    "frontend/src/pages/DispatchTrackingPage.tsx",
+    "frontend/src/pages/ProductionEntryPage.tsx",
+    "frontend/src/pages/WorkInHandPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

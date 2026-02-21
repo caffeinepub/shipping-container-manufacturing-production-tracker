@@ -21,12 +21,13 @@ import { toast } from 'sonner';
 interface DailyProductionReportTableProps {
   reports: DailyProductionReport[];
   onEdit: (report: DailyProductionReport) => void;
+  isViewerRole?: boolean;
 }
 
 type SortField = 'date' | 'operationName' | 'todayProduction' | 'totalCompleted' | 'despatched' | 'inHand';
 type SortDirection = 'asc' | 'desc';
 
-export default function DailyProductionReportTable({ reports, onEdit }: DailyProductionReportTableProps) {
+export default function DailyProductionReportTable({ reports, onEdit, isViewerRole = false }: DailyProductionReportTableProps) {
   const [sortField, setSortField] = useState<SortField>('date');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const deleteReport = useDeleteDailyProductionReport();
@@ -127,7 +128,7 @@ export default function DailyProductionReportTable({ reports, onEdit }: DailyPro
                     onClick={() => handleSort('todayProduction')}
                     className="gap-2 font-semibold"
                   >
-                    Today
+                    Today's Production
                     <SortIcon field="todayProduction" />
                   </Button>
                 </TableHead>
@@ -138,7 +139,7 @@ export default function DailyProductionReportTable({ reports, onEdit }: DailyPro
                     onClick={() => handleSort('totalCompleted')}
                     className="gap-2 font-semibold"
                   >
-                    Total
+                    Total Completed
                     <SortIcon field="totalCompleted" />
                   </Button>
                 </TableHead>
@@ -154,50 +155,59 @@ export default function DailyProductionReportTable({ reports, onEdit }: DailyPro
                   </Button>
                 </TableHead>
                 <TableHead className="text-right">
-                  <Button variant="ghost" size="sm" onClick={() => handleSort('inHand')} className="gap-2 font-semibold">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleSort('inHand')}
+                    className="gap-2 font-semibold"
+                  >
                     In Hand
                     <SortIcon field="inHand" />
                   </Button>
                 </TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                {!isViewerRole && <TableHead className="text-right">Actions</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
               {sortedReports.map((report, index) => (
-                <TableRow key={index}>
+                <TableRow key={`${report.date}-${report.operationName}-${index}`}>
                   <TableCell className="font-medium">{report.date}</TableCell>
                   <TableCell>{report.operationName}</TableCell>
-                  <TableCell className="text-right">{Number(report.todayProduction)}</TableCell>
-                  <TableCell className="text-right">{Number(report.totalCompleted)}</TableCell>
-                  <TableCell className="text-right">{Number(report.despatched)}</TableCell>
-                  <TableCell className="text-right">{Number(report.inHand)}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="icon" onClick={() => onEdit(report)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Production Report</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Are you sure you want to delete this production report for {report.operationName} on{' '}
-                              {report.date}? This action cannot be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDelete(report)}>Delete</AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </TableCell>
+                  <TableCell className="text-right">{Number(report.todayProduction).toLocaleString()}</TableCell>
+                  <TableCell className="text-right">{Number(report.totalCompleted).toLocaleString()}</TableCell>
+                  <TableCell className="text-right">{Number(report.despatched).toLocaleString()}</TableCell>
+                  <TableCell className="text-right font-semibold">{Number(report.inHand).toLocaleString()}</TableCell>
+                  {!isViewerRole && (
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button variant="ghost" size="sm" onClick={() => onEdit(report)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Production Report</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete the report for {report.operationName} on {report.date}?
+                                This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDelete(report)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>

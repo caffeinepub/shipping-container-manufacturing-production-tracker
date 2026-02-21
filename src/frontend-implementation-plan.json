@@ -1,6 +1,103 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Create Admin Production Update Panel with auto-calculation and daily update capability",
-  "requirements": []
+  "title": "Implement role-based access control UI for Admin and Viewer roles",
+  "requirements": [
+    {
+      "id": "REQ-34",
+      "summary": "Create a custom React hook to fetch the current user's role from the backend",
+      "acceptanceCriteria": [
+        "Hook uses React Query to fetch caller role with appropriate caching",
+        "Hook returns loading state, role data ('admin' | 'viewer' | null), and error state",
+        "Hook is enabled only when actor is initialized"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useGetCallerRole.ts",
+          "operation": "create",
+          "description": "Create a custom hook that calls the getCallerRole backend function using React Query. Return loading state, role data (string | null), and error state. Enable the query only when actor is available and not fetching. Follow the pattern from useGetCallerUserProfile.ts for proper actor dependency handling."
+        }
+      ]
+    },
+    {
+      "id": "REQ-35",
+      "summary": "Update AuthGuard to enforce role-based route access, allowing admins full access and viewers dashboard-only access",
+      "acceptanceCriteria": [
+        "Admin users can access all routes and features",
+        "Viewer users can only access dashboard routes (/production-dashboard, /dashboard) and are redirected or blocked from data entry routes",
+        "Unauthenticated users see the access denied screen",
+        "Loading states are displayed while role is being fetched"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/AuthGuard.tsx",
+          "operation": "modify",
+          "description": "Integrate useGetCallerRole hook to fetch the user's role. While loading, display a loading state. For authenticated users: if role is 'viewer', check the current route path and redirect to /production-dashboard if attempting to access non-dashboard routes (production-entry, dispatch-tracking, work-in-hand, daily-reports). If role is 'admin' or null, allow access to all routes. For unauthenticated users, show AccessDeniedScreen as before. Use the authorization component's role-checking capability to support this feature."
+        }
+      ]
+    },
+    {
+      "id": "REQ-36",
+      "summary": "Update navigation menu to conditionally display items based on user role",
+      "acceptanceCriteria": [
+        "Admin users see all navigation menu items (Dashboard, Production Dashboard, Production Entry, Production History, Dispatch Tracking, Work in Hand, Daily Reports)",
+        "Viewer users see only Dashboard and Production Dashboard menu items",
+        "Navigation menu updates reactively when user role changes"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/Layout.tsx",
+          "operation": "modify",
+          "description": "Integrate useGetCallerRole hook to fetch the user's role. Filter the navigation menu items array based on role: if role is 'viewer', only include Dashboard and Production Dashboard links; if role is 'admin' or null (default to admin for backward compatibility), include all navigation items (Dashboard, Production Dashboard, Production Entry, Production History, Dispatch Tracking, Work in Hand, Daily Reports). Apply the filter to both desktop and mobile navigation menus. Use the authorization component to support this role-based UI rendering."
+        }
+      ]
+    },
+    {
+      "id": "REQ-37",
+      "summary": "Hide or disable data entry forms and edit/delete actions for viewer users across all pages",
+      "acceptanceCriteria": [
+        "Forms and action buttons are hidden or disabled when caller role is 'viewer'",
+        "Dashboard and table views remain fully visible and functional for viewer users",
+        "Admin users continue to see and interact with all forms and actions",
+        "UI clearly indicates read-only status for viewer users where appropriate"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/ProductionEntryPage.tsx",
+          "operation": "modify",
+          "description": "Integrate useGetCallerRole hook. If role is 'viewer', hide the production entry form and display a message indicating read-only access. If role is 'admin' or null, show the form as before. Use the authorization component's role-checking capability to control UI visibility."
+        },
+        {
+          "path": "frontend/src/components/DailyProductionReportForm.tsx",
+          "operation": "modify",
+          "description": "Integrate useGetCallerRole hook. If role is 'viewer', disable all form inputs and hide the submit button, or hide the entire form based on parent component logic. If role is 'admin' or null, enable full editing. Use the authorization component to support role-based form control."
+        },
+        {
+          "path": "frontend/src/components/DispatchEntryForm.tsx",
+          "operation": "modify",
+          "description": "Integrate useGetCallerRole hook. If role is 'viewer', disable all form inputs and hide the submit button, or hide the entire form based on parent component logic. If role is 'admin' or null, enable full editing. Use the authorization component to support role-based form control."
+        },
+        {
+          "path": "frontend/src/components/DailyProductionReportTable.tsx",
+          "operation": "modify",
+          "description": "Integrate useGetCallerRole hook. If role is 'viewer', hide the edit and delete action buttons in the table rows. If role is 'admin' or null, display actions as before. Use the authorization component to control action button visibility."
+        },
+        {
+          "path": "frontend/src/pages/DispatchTrackingPage.tsx",
+          "operation": "modify",
+          "description": "Integrate useGetCallerRole hook. If role is 'viewer', hide the DispatchEntryForm and display a read-only message. If role is 'admin' or null, show the form as before. Use the authorization component to support role-based page rendering."
+        },
+        {
+          "path": "frontend/src/pages/DailyProductionReportPage.tsx",
+          "operation": "modify",
+          "description": "Integrate useGetCallerRole hook. If role is 'viewer', hide the DailyProductionReportForm and disable edit functionality in the table. Display a read-only indicator for viewer users. If role is 'admin' or null, enable full functionality. Use the authorization component to control page-level permissions."
+        },
+        {
+          "path": "frontend/src/pages/WorkInHandPage.tsx",
+          "operation": "modify",
+          "description": "Integrate useGetCallerRole hook. If role is 'viewer', ensure the page remains fully visible (no forms to hide). Optionally display a read-only indicator. If role is 'admin' or null, no changes needed. Use the authorization component for consistent role handling."
+        }
+      ]
+    }
+  ]
 }

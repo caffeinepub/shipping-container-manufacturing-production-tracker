@@ -6,11 +6,8 @@ import Iter "mo:core/Iter";
 import Nat "mo:core/Nat";
 import Array "mo:core/Array";
 
-
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
-
-// Use with-clause to install migration on upgrade.
 
 actor {
   let accessControlState = AccessControl.initState();
@@ -81,14 +78,42 @@ actor {
     userProfiles.get(user);
   };
 
-  public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
+  public shared ({ caller }) func saveCallerUserProfile(name : Text) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can save profiles");
+    };
+    let profile : UserProfile = {
+      name;
     };
     userProfiles.add(caller, profile);
   };
 
-  // Production record management
+  // Role management - returns role as text for frontend compatibility
+  public query ({ caller }) func getCallerRole() : async ?Text {
+    let role = AccessControl.getUserRole(accessControlState, caller);
+    switch (role) {
+      case (#admin) { ?"admin" };
+      case (#user) { ?"viewer" };
+      case (#guest) { null };
+    };
+  };
+
+  // Update user role - maps "admin"/"viewer" strings to AccessControl roles
+  public shared ({ caller }) func updateUserRole(targetUser : Principal, newRole : Text) : async () {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can update user roles");
+    };
+    
+    let mappedRole = switch (newRole) {
+      case ("admin") { #admin };
+      case ("viewer") { #user };
+      case (_) { Runtime.trap("Invalid role: must be 'admin' or 'viewer'") };
+    };
+    
+    AccessControl.assignRole(accessControlState, caller, targetUser, mappedRole);
+  };
+
+  // Production record management - admin only for mutations
   public shared ({ caller }) func addProductionRecord(record : ProductionRecord) : async () {
     if (not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Unauthorized: Only admins can add production records");
@@ -97,16 +122,17 @@ actor {
     nextProductionId += 1;
   };
 
+  // Query functions - accessible to both admins and viewers (users)
   public query ({ caller }) func getAllProductionRecords() : async [ProductionRecord] {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Only admins can view production records");
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can view production records");
     };
     productionRecords.values().toArray();
   };
 
   public query ({ caller }) func getProductionRecordsByDateRange(startDate : Text, endDate : Text) : async [ProductionRecord] {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Only admins can view production records");
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can view production records");
     };
     let filtered = productionRecords.values().filter(
       func(record) {
@@ -116,7 +142,7 @@ actor {
     filtered.toArray();
   };
 
-  // Dispatch record management
+  // Dispatch record management - admin only for mutations
   public shared ({ caller }) func addDispatchRecord(record : DispatchRecord) : async () {
     if (not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Unauthorized: Only admins can add dispatch records");
@@ -126,16 +152,16 @@ actor {
   };
 
   public query ({ caller }) func getAllDispatchRecords() : async [DispatchRecord] {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Only admins can view dispatch records");
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can view dispatch records");
     };
     dispatchRecords.values().toArray();
   };
 
-  // Work-in-hand status
+  // Work-in-hand status - accessible to authenticated users
   public query ({ caller }) func getWorkInHandStatus() : async [WorkInHandRecord] {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Only admins can view work-in-hand status");
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can view work-in-hand status");
     };
 
     let producedByType = Map.empty<Text, Nat>();
@@ -180,7 +206,7 @@ actor {
     workInHandArray;
   };
 
-  // Daily Production Report CRUD Functions
+  // Daily Production Report CRUD Functions - admin only for mutations
   public shared ({ caller }) func createDailyProductionReport(report : DailyProductionReport) : async Nat {
     if (not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Unauthorized: Only admins can create production reports");
@@ -192,8 +218,8 @@ actor {
   };
 
   public query ({ caller }) func getDailyProductionReport(id : Nat) : async ?DailyProductionReport {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Only admins can retrieve production reports");
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can retrieve production reports");
     };
     switch (dailyProductionReports.get(id)) {
       case (null) { null };
@@ -202,8 +228,8 @@ actor {
   };
 
   public query ({ caller }) func getAllDailyProductionReports() : async [DailyProductionReport] {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Only admins can retrieve production reports");
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can retrieve production reports");
     };
     dailyProductionReports.values().toArray().map(
       func(reportWithId) {
@@ -238,7 +264,7 @@ actor {
     };
   };
 
-  // Initialize default operation names
+  // Initialize default operation names - admin only
   public shared ({ caller }) func initializeDefaultReports() : async () {
     if (not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Unauthorized: Only admins can initialize default reports");
@@ -277,4 +303,3 @@ actor {
     };
   };
 };
-

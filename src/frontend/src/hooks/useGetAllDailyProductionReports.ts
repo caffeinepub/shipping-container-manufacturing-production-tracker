@@ -12,5 +12,6 @@ export function useGetAllDailyProductionReports() {
       return actor.getAllDailyProductionReports();
     },
     enabled: !!actor && !isFetching,
+    refetchInterval: 30000, // Auto-refresh every 30 seconds
   });
 }

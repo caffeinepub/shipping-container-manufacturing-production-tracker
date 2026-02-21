@@ -65,6 +65,7 @@ export const idlService = IDL.Service({
       [IDL.Vec(ProductionRecord)],
       ['query'],
     ),
+  'getCallerRole' : IDL.Func([], [IDL.Opt(IDL.Text)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getDailyProductionReport' : IDL.Func(
@@ -85,12 +86,13 @@ export const idlService = IDL.Service({
   'getWorkInHandStatus' : IDL.Func([], [IDL.Vec(WorkInHandRecord)], ['query']),
   'initializeDefaultReports' : IDL.Func([], [], []),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
-  'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'saveCallerUserProfile' : IDL.Func([IDL.Text], [], []),
   'updateDailyProductionReport' : IDL.Func(
       [IDL.Nat, DailyProductionReport],
       [IDL.Bool],
       [],
     ),
+  'updateUserRole' : IDL.Func([IDL.Principal, IDL.Text], [], []),
 });
 
 export const idlInitArgs = [];
@@ -157,6 +159,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(ProductionRecord)],
         ['query'],
       ),
+    'getCallerRole' : IDL.Func([], [IDL.Opt(IDL.Text)], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getDailyProductionReport' : IDL.Func(
@@ -181,12 +184,13 @@ export const idlFactory = ({ IDL }) => {
       ),
     'initializeDefaultReports' : IDL.Func([], [], []),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
-    'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'saveCallerUserProfile' : IDL.Func([IDL.Text], [], []),
     'updateDailyProductionReport' : IDL.Func(
         [IDL.Nat, DailyProductionReport],
         [IDL.Bool],
         [],
       ),
+    'updateUserRole' : IDL.Func([IDL.Principal, IDL.Text], [], []),
   });
 };
 

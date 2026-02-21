@@ -1,11 +1,14 @@
 import { useGetWorkInHandStatus } from '../hooks/useGetWorkInHandStatus';
+import { useGetCallerRole } from '../hooks/useGetCallerRole';
 import WorkInHandTable from '../components/WorkInHandTable';
 import SummaryCard from '../components/SummaryCard';
-import { Package, TrendingUp, Factory, Truck } from 'lucide-react';
+import { Package, TrendingUp, Factory, Truck, Eye } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function WorkInHandPage() {
   const { data: records = [], isLoading } = useGetWorkInHandStatus();
+  const { data: role } = useGetCallerRole();
 
   const totalInventory = records.reduce((sum, record) => sum + Number(record.currentInventory), 0);
   const totalProduced = records.reduce((sum, record) => sum + Number(record.producedQuantity), 0);
@@ -29,6 +32,22 @@ export default function WorkInHandPage() {
         <h1 className="text-3xl font-bold text-foreground">Work in Hand Status</h1>
         <p className="text-muted-foreground mt-1">Current inventory by container type</p>
       </div>
+
+      {role === 'viewer' && (
+        <Card className="bg-muted/50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Eye className="h-4 w-4" />
+              Viewing Mode
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              You are viewing this data in read-only mode.
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

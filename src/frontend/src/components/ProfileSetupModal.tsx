@@ -17,7 +17,7 @@ export default function ProfileSetupModal({ open }: ProfileSetupModalProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim()) {
-      saveProfile.mutate({ name: name.trim() });
+      saveProfile.mutate(name.trim());
     }
   };
 

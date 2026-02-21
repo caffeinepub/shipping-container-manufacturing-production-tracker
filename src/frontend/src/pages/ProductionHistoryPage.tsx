@@ -1,28 +1,46 @@
-import { useState } from 'react';
-import { useGetProductionRecordsByDateRange } from '../hooks/useGetProductionRecordsByDateRange';
-import DateRangeFilter from '../components/DateRangeFilter';
-import ProductionHistoryTable from '../components/ProductionHistoryTable';
+import { useState, useMemo } from 'react';
+import { useGetAllDailyProductionReports } from '../hooks/useGetAllDailyProductionReports';
+import DailyProductionReportFilter from '../components/DailyProductionReportFilter';
+import DailyProductionReportTable from '../components/DailyProductionReportTable';
+import DailyProductionReportForm from '../components/DailyProductionReportForm';
 import { Loader2 } from 'lucide-react';
+import { DailyProductionReport } from '../backend';
 
 export default function ProductionHistoryPage() {
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [filteredReports, setFilteredReports] = useState<DailyProductionReport[]>([]);
+  const [editingReport, setEditingReport] = useState<DailyProductionReport | null>(null);
 
-  const { data: records = [], isLoading } = useGetProductionRecordsByDateRange(startDate, endDate);
+  const { data: allReports = [], isLoading } = useGetAllDailyProductionReports();
 
-  const handleFilterChange = (start: string, end: string) => {
-    setStartDate(start);
-    setEndDate(end);
+  // Display filtered reports if filter is applied, otherwise show all reports
+  const displayReports = useMemo(() => {
+    return filteredReports.length > 0 ? filteredReports : allReports;
+  }, [filteredReports, allReports]);
+
+  const handleFilterChange = (filtered: DailyProductionReport[]) => {
+    setFilteredReports(filtered);
+  };
+
+  const handleEdit = (report: DailyProductionReport) => {
+    setEditingReport(report);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingReport(null);
   };
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-foreground">Production History</h1>
-        <p className="text-muted-foreground mt-1">View and filter historical production records</p>
+        <p className="text-muted-foreground mt-1">View, filter, and edit historical production records</p>
       </div>
 
-      <DateRangeFilter onFilterChange={handleFilterChange} />
+      <DailyProductionReportFilter reports={allReports} onFilterChange={handleFilterChange} />
+
+      {editingReport && (
+        <DailyProductionReportForm editingReport={editingReport} onCancelEdit={handleCancelEdit} />
+      )}
 
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
@@ -32,7 +50,7 @@ export default function ProductionHistoryPage() {
           </div>
         </div>
       ) : (
-        <ProductionHistoryTable records={records} />
+        <DailyProductionReportTable reports={displayReports} onEdit={handleEdit} />
       )}
     </div>
   );
